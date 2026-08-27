@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+/* Design tokens. Values read from docs/Logo & OG.dc.html. */
+:root {
+  --color-bg: #f3f2f2;
+  --color-surface: #ffffff;
+  --color-text: #201f1d;
+  --color-divider: rgba(32, 31, 29, 0.12);
+  --color-neutral-200: rgba(32, 31, 29, 0.08);
+  --color-accent: #b68235;
+  --color-accent-700: #7d5411;
+
+  --radius-md: 6px;
+
+  --font-heading: 'Public Sans', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-heading-weight: 600;
+}
+
+/* Tailwind theme bridge, so utilities can reach the same tokens. */
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-divider: var(--color-divider);
+  --color-accent: var(--color-accent);
+  --color-accent-700: var(--color-accent-700);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --font-serif: var(--font-serif);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-accent-700);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+/* Design system primitives carried over from the reference `_ds` bundle. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.btn:disabled {
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-700);
+  border-color: var(--color-accent-700);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-divider);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent-700);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-neutral-200);
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex: none;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 11px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--color-text) 40%, transparent);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hr {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--color-divider);
+}
+
+.elev-lg {
+  box-shadow: 0 18px 44px rgba(32, 31, 29, 0.18);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(32, 31, 29, 0.34);
+  padding: 20px;
+}
+
+.noscroll {
+  scrollbar-width: none;
+}
+
+.noscroll::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

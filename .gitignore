@@ -1,0 +1,13 @@
+CLAUDE.code.md
+HANDOFF.md
+docs/
+
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.log
+test-results/
+playwright-report/
+.env
+.env.*
