@@ -165,11 +165,13 @@ test('the language switch swaps the page without leaving it', async ({ page }) =
 
   await expect(page.getByText('Nothing open yet')).toBeVisible();
 
-  await page.getByRole('link', { name: 'TR' }).click();
+  // The switch is labelled with the language you are reading, so the English
+  // page shows EN and takes you to Turkish.
+  await page.getByRole('link', { name: 'EN' }).click();
   await expect(page).toHaveURL(/\/tr\/app\/?$/);
   await expect(page.getByText('Henüz açık bir şey yok')).toBeVisible();
 
-  await page.getByRole('link', { name: 'EN' }).click();
+  await page.getByRole('link', { name: 'TR' }).click();
   await expect(page).toHaveURL(/\/app\/?$/);
   await expect(page.getByText('Nothing open yet')).toBeVisible();
 });

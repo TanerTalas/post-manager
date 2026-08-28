@@ -184,7 +184,9 @@ export default function HeaderBar({ route, lang, altUrl, homeUrl, appUrl, tourUr
               <Icon size={15} width={1.5}>
                 {paths.globe}
               </Icon>
-              {LANG_LABEL[otherLang(lang)]}
+              {/* The language you are reading, not the one the link leads to.
+                  Naming the destination read as if the page were already in it. */}
+              {LANG_LABEL[lang]}
             </a>
           </div>
         </div>
