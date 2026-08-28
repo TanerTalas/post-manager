@@ -1,0 +1,15 @@
+# Copy to .dev.vars for local runs of `pnpm preview:cf`. Never commit the copy.
+
+# Turnstile, from the Cloudflare dashboard. The site key is public and also has
+# to be present at build time as PUBLIC_TURNSTILE_SITE_KEY.
+TURNSTILE_SECRET_KEY=
+
+# Resend API key.
+RESEND_API_KEY=
+
+# Where contact messages are delivered.
+CONTACT_TO=tanertalas.dev@gmail.com
+
+# Optional. Only set this once a domain is verified with Resend. Until then the
+# endpoint falls back to Resend's shared testing sender.
+# CONTACT_FROM=Post Manager <hello@yourdomain.com>

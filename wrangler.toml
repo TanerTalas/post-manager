@@ -1,0 +1,20 @@
+name = "post-manager"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "dist"
+
+# Secrets are never written here. Set them in the Pages project settings, or in
+# a local .dev.vars file that git ignores:
+#
+#   TURNSTILE_SECRET_KEY   Turnstile server key
+#   RESEND_API_KEY         Resend API key
+#   CONTACT_TO             inbox the messages land in
+#   CONTACT_FROM           optional, a verified sender once a domain exists
+#
+# The build also reads PUBLIC_TURNSTILE_SITE_KEY, which is the public half of
+# the Turnstile pair and ships inside the page.
+
+# Optional. Uncomment after creating the namespace to cap submissions per
+# address; the endpoint works without it.
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT"
+# id = "replace-with-the-namespace-id"
