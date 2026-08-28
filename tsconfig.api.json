@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "include": ["**/*.ts", "../src/lib/contact.ts"]
+  "include": ["api/**/*.ts", "src/lib/contact.ts", "src/lib/contact-endpoint.ts"]
 }

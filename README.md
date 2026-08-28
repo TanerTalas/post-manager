@@ -11,7 +11,7 @@ Write a post once and shape it for every platform side by side, in a page that l
 [![License: MIT](https://img.shields.io/badge/License-MIT-b68235.svg?style=flat-square)](LICENSE)
 [![Astro](https://img.shields.io/badge/Astro-5-201f1d.svg?style=flat-square)](https://astro.build)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-201f1d.svg?style=flat-square)](https://www.typescriptlang.org)
-[![Deploy](https://img.shields.io/badge/Vercel-live-201f1d.svg?style=flat-square)](https://post-manager.vercel.app)
+[![Deploy](https://img.shields.io/badge/Vercel-live-201f1d.svg?style=flat-square)](https://post-manager-rouge.vercel.app)
 
 </div>
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleContact, readConfig, type Config } from './contact';
+import { handleContact, readConfig, type Config } from './contact-endpoint';
 
 const config: Config = {
   turnstileSecret: 'secret',

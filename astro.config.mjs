@@ -10,7 +10,7 @@ export default defineConfig({
 
   // Absolute URLs for canonical links and the OG image. Point this at the real
   // domain once there is one.
-  site: 'https://post-manager.vercel.app',
+  site: 'https://post-manager-rouge.vercel.app',
 
   // The reference design opens Projects on the same screen as the app, so the
   // route map's two names point at one page.
