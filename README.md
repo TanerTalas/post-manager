@@ -88,7 +88,7 @@ cp .env.example .env.local   # then fill it in
 | `pnpm test` | unit tests |
 | `pnpm test:e2e` | flow tests |
 
-Deploying is its own page: **[DEPLOY.md](DEPLOY.md)**.
+Deployment is a static build plus one function on Vercel. The contact endpoint reads four variables from the host: `PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY` and `CONTACT_TO`.
 
 <br>
 
