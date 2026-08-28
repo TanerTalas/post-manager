@@ -82,9 +82,7 @@ const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
     </div>
 
     <footer style="border-top:1px solid var(--color-divider)">
-      <div
-        style={`max-width:1080px;margin:0 auto;padding:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;font-size:12px;color:${dim}`}
-      >
+      <div class="legal-footer-inner" style={`color:${dim}`}>
         <span style="font-variant-numeric:tabular-nums">&copy; 2026 Post Manager</span>
         <a class="btn btn-ghost" href="/app" data-return style="font-size:12px">Return</a>
       </div>
@@ -92,6 +90,18 @@ const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
   </div>
 
   <style>
+    .legal-footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
     .legal-strip {
       display: none;
       margin-top: 20px;
@@ -104,7 +114,6 @@ const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
       display: flex;
       gap: 18px;
       overflow-x: auto;
-      touch-action: pan-y;
     }
 
     .legal-grid {
@@ -123,6 +132,16 @@ const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
       top: 80px;
       z-index: 1;
       background: var(--color-bg);
+    }
+
+    @media (max-width: 640px) {
+      /* Stacked rather than spread, so it centres like the rest of the site. */
+      .legal-footer-inner {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: 12px;
+      }
     }
 
     @media (max-width: 760px) {

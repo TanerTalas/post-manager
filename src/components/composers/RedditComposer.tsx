@@ -27,9 +27,6 @@ function escapeHtml(value: string): string {
 const roundBtn =
   'display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit';
 
-/** Toolbar glyphs sit dimmed until pointed at. */
-const TOOLBAR = 'hov-dark-ink';
-
 export default function RedditComposer({ project }: Props) {
   const body = useRef<HTMLDivElement | null>(null);
   const range = useRef<Range | null>(null);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Icon, paths } from '~/components/Icon';
 import { setAnchor } from '~/lib/anchors';
 import { goTo } from '~/lib/navigate';
+import { useDragScroll, useHasHover } from '~/lib/pointer';
 import {
   currentStep as getTourStep,
   endTour,
@@ -38,7 +39,8 @@ export default function HeaderBar({ route }: Props) {
   const [info, setInfo] = useState(false);
   const [edges, setEdges] = useState({ start: true, end: true });
   const strip = useRef<HTMLDivElement | null>(null);
-  const drag = useRef<{ x: number; left: number } | null>(null);
+  const dragScroll = useDragScroll(strip);
+  const canHover = useHasHover();
 
   const measure = useCallback(() => {
     const el = strip.current;
@@ -198,27 +200,20 @@ export default function HeaderBar({ route }: Props) {
             ref={strip}
             class="noscroll"
             onScroll={measure}
-            onPointerDown={(event) => {
-              const el = strip.current;
-              if (el) drag.current = { x: event.clientX, left: el.scrollLeft };
-            }}
-            onPointerMove={(event) => {
-              const el = strip.current;
-              if (el && drag.current) {
-                el.scrollLeft = drag.current.left - (event.clientX - drag.current.x);
-              }
-            }}
-            onPointerUp={() => (drag.current = null)}
-            onPointerLeave={() => (drag.current = null)}
-            style="flex:1;display:flex;gap:2px;overflow-x:auto;padding-bottom:34px;touch-action:pan-y;cursor:grab"
+            {...dragScroll}
+            style="flex:1;display:flex;gap:2px;overflow-x:auto;padding-bottom:34px;cursor:grab"
           >
             {tabs.map((tab) => {
               const on = tab.id === activeId;
               return (
                 <div
                   key={tab.id}
-                  onMouseEnter={() => setHover(tab.id)}
-                  onMouseLeave={() => setHover(null)}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === 'mouse') setHover(tab.id);
+                  }}
+                  onPointerLeave={(event) => {
+                    if (event.pointerType === 'mouse') setHover(null);
+                  }}
                   onClick={() => pickTab(tab.id)}
                   style={`position:relative;flex:none;width:${TAB_WIDTH}px;height:38px;display:flex;align-items:center;gap:6px;padding:0 10px;cursor:pointer;border:1px solid ${
                     on ? 'var(--color-divider)' : 'transparent'
@@ -232,7 +227,7 @@ export default function HeaderBar({ route }: Props) {
                     {tab.label}
                   </span>
 
-                  {tab.closable && hover === tab.id ? (
+                  {tab.closable && (!canHover || hover === tab.id) ? (
                     <button
                       onClick={closeHomeTab}
                       title="Close tab"
@@ -245,7 +240,7 @@ export default function HeaderBar({ route }: Props) {
                     </button>
                   ) : null}
 
-                  {!tab.closable && (on || hover === tab.id) ? (
+                  {!tab.closable && (on || (canHover && hover === tab.id)) ? (
                     <button
                       ref={(el) => {
                         if (on) setAnchor('pencil', el);

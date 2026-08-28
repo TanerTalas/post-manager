@@ -14,6 +14,7 @@ import {
   useStore,
 } from '~/lib/store';
 import { PlatformRow } from '~/components/PlatformRow';
+import { useDragScroll } from '~/lib/pointer';
 
 const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
 
@@ -27,7 +28,7 @@ export default function AppScreen() {
   const [pendingDelete, setPendingDelete] = useState(false);
   const [edges, setEdges] = useState({ start: true, end: true });
   const strip = useRef<HTMLDivElement | null>(null);
-  const drag = useRef<{ x: number; left: number } | null>(null);
+  const dragScroll = useDragScroll(strip);
 
   const measure = useCallback(() => {
     const el = strip.current;
@@ -105,19 +106,8 @@ export default function AppScreen() {
           ref={strip}
           class="noscroll"
           onScroll={measure}
-          onPointerDown={(event) => {
-            const el = strip.current;
-            if (el) drag.current = { x: event.clientX, left: el.scrollLeft };
-          }}
-          onPointerMove={(event) => {
-            const el = strip.current;
-            if (el && drag.current) {
-              el.scrollLeft = drag.current.left - (event.clientX - drag.current.x);
-            }
-          }}
-          onPointerUp={() => (drag.current = null)}
-          onPointerLeave={() => (drag.current = null)}
-          style="flex:1;display:flex;gap:8px;overflow-x:auto;padding:2px;touch-action:pan-y;cursor:grab"
+          {...dragScroll}
+          style="flex:1;display:flex;gap:8px;overflow-x:auto;padding:2px;cursor:grab"
         >
           {PLATFORMS.map((platform) => {
             const on = selected.includes(platform.id);
