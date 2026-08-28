@@ -1,11 +1,16 @@
 ---
 import Legal from '~/layouts/Legal.astro';
-import { LEGAL, DRAFT_NOTE } from '~/data/legal';
+import { legalPage } from '~/data/legal';
+import { localePaths, langFrom, translator } from '~/i18n';
 
-const page = LEGAL.terms;
+export const getStaticPaths = localePaths;
+
+const lang = langFrom(Astro.params.lang);
+const t = translator(lang);
+const page = legalPage(lang, 'cookies');
 ---
 
-<Legal title={page.title} kicker={page.kicker} slug={page.slug}>
+<Legal title={page.title} kicker={page.kicker} slug={page.slug} lang={lang}>
   {
     page.body.map((section) => (
       <div style="margin-bottom:30px">
@@ -17,6 +22,6 @@ const page = LEGAL.terms;
     ))
   }
   <p style="font-size:12px;line-height:1.7;margin:36px 0 0;color:color-mix(in srgb, var(--color-text) 50%, transparent);text-wrap:pretty">
-    {DRAFT_NOTE}
+    {t('legal.draftNote')}
   </p>
 </Legal>

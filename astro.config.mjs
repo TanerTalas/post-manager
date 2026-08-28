@@ -16,6 +16,7 @@ export default defineConfig({
   // route map's two names point at one page.
   redirects: {
     '/projects': '/app',
+    '/tr/projects': '/tr/app',
   },
 
   integrations: [preact()],

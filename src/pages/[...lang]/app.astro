@@ -1,0 +1,16 @@
+---
+import Shell from '~/layouts/Shell.astro';
+import AppScreen from '~/islands/AppScreen';
+import TourGuide from '~/islands/TourGuide';
+import { localePaths, langFrom, translator } from '~/i18n';
+
+export const getStaticPaths = localePaths;
+
+const lang = langFrom(Astro.params.lang);
+const t = translator(lang);
+---
+
+<Shell title="Post Manager" route="app" lang={lang} description={t('meta.appDescription')}>
+  <AppScreen client:load lang={lang} />
+  <TourGuide client:load lang={lang} />
+</Shell>

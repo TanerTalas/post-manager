@@ -1,8 +1,15 @@
 ---
 import Shell from '~/layouts/Shell.astro';
+import { localePaths, langFrom, translator, to } from '~/i18n';
+
+export const getStaticPaths = localePaths;
+
+const lang = langFrom(Astro.params.lang);
+const t = translator(lang);
+const appUrl = to('/app', lang);
 ---
 
-<Shell title="Post Manager" route="home">
+<Shell title="Post Manager" route="home" lang={lang} description={t('meta.homeDescription')}>
   <div style="padding:64px 0 84px;text-align:center">
     <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:0 0 26px">
       <span style="display:flex;align-items:flex-end;justify-content:center;flex:none;width:88px;height:72px;border:1.5px solid var(--color-accent);border-bottom:0;border-radius:7px 7px 0 0;background:color-mix(in srgb, var(--color-accent) 8%, transparent);padding-bottom:9px">
@@ -17,20 +24,20 @@ import Shell from '~/layouts/Shell.astro';
       Post Manager
     </h1>
     <p style="font-size:17px;line-height:1.65;margin:16px auto 0;max-width:38ch;text-wrap:pretty;color:color-mix(in srgb, var(--color-text) 70%, transparent)">
-      Draft your posts the easy way
+      {t('home.tagline')}
     </p>
 
     <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:32px">
-      <a class="btn btn-primary" href="/app?tour=1" style="padding:11px 22px;font-size:15px;white-space:nowrap">
-        Shall we take a tour?
+      <a class="btn btn-primary" href={`${appUrl}?tour=1`} style="padding:11px 22px;font-size:15px;white-space:nowrap">
+        {t('home.tour')}
       </a>
-      <a class="btn btn-secondary" href="/app" style="padding:11px 22px;font-size:15px;white-space:nowrap">
-        I&apos;ve used this before
+      <a class="btn btn-secondary" href={appUrl} style="padding:11px 22px;font-size:15px;white-space:nowrap">
+        {t('home.skip')}
       </a>
     </div>
 
     <p style="font-size:13px;line-height:1.6;margin:38px 0 0;color:color-mix(in srgb, var(--color-text) 50%, transparent)">
-      Everything stays in this browser. Nothing is uploaded.
+      {t('home.note')}
     </p>
   </div>
 </Shell>

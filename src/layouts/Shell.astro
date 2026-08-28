@@ -2,25 +2,42 @@
 import Base from './Base.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
 import HeaderBar from '~/islands/HeaderBar';
+import { alternateOf, to, type Lang } from '~/i18n';
 
 interface Props {
   title: string;
   description?: string;
   route: 'home' | 'app';
+  lang: Lang;
 }
 
-const { title, description, route } = Astro.props;
+const { title, description, route, lang } = Astro.props;
+
+// Worked out here rather than in the island: a plain href works before any
+// JavaScript has loaded.
+const altUrl = alternateOf(Astro.url.pathname, lang);
+const homeUrl = to('/', lang);
+const appUrl = to('/app', lang);
+const tourUrl = `${appUrl}?tour=1`;
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} lang={lang}>
   <div style="min-height:100vh;display:flex;flex-direction:column">
-    <HeaderBar client:load route={route} />
+    <HeaderBar
+      client:load
+      route={route}
+      lang={lang}
+      altUrl={altUrl}
+      homeUrl={homeUrl}
+      appUrl={appUrl}
+      tourUrl={tourUrl}
+    />
 
     <main style="flex:1;width:100%;margin:0 auto;padding:34px 20px 64px;max-width:1180px">
       <slot />
     </main>
 
-    <SiteFooter />
+    <SiteFooter lang={lang} />
   </div>
 
   <script>

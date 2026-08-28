@@ -1,0 +1,27 @@
+---
+import Legal from '~/layouts/Legal.astro';
+import ContactForm from '~/islands/ContactForm';
+import { localePaths, langFrom, translator } from '~/i18n';
+
+export const getStaticPaths = localePaths;
+
+const lang = langFrom(Astro.params.lang);
+const t = translator(lang);
+
+// Public key, safe to ship. Set PUBLIC_TURNSTILE_SITE_KEY in the build
+// environment; without it the form renders but says it is not configured.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+---
+
+<Legal
+  title={t('contact.title')}
+  kicker={t('contact.kicker')}
+  slug="contact"
+  lang={lang}
+  description={t('contact.description')}
+>
+  <p style="font-size:16px;line-height:1.9;margin:0 0 18px;text-wrap:pretty">{t('contact.intro1')}</p>
+  <p style="font-size:16px;line-height:1.9;margin:0 0 30px;text-wrap:pretty">{t('contact.intro2')}</p>
+
+  <ContactForm client:load siteKey={siteKey} lang={lang} />
+</Legal>

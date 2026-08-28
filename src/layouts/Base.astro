@@ -1,44 +1,56 @@
 ---
 import '~/styles/theme.css';
+import { translator, to, routeOf, LANGS, DEFAULT_LANG, type Lang } from '~/i18n';
 
 interface Props {
   title: string;
   description?: string;
+  lang: Lang;
 }
 
-const {
-  title,
-  description = 'One place to write, compare and keep every version before it goes out. Everything stays in your browser.',
-} = Astro.props;
+const { title, lang, description } = Astro.props;
+const t = translator(lang);
 
 const base = Astro.site ?? new URL('http://localhost:4321');
-const canonical = new URL(Astro.url.pathname, base);
+const route = routeOf(Astro.url.pathname);
+const canonical = new URL(to(route, lang), base);
 const ogImage = new URL('/og.png', base);
+
+// Every page exists in both languages, so each one names the other.
+const alternates = LANGS.map((code) => ({
+  code,
+  href: new URL(to(route, code), base).href,
+}));
+const defaultHref = new URL(to(route, DEFAULT_LANG), base).href;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={description ?? t('meta.homeDescription')} />
     <link rel="canonical" href={canonical.href} />
+
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.code} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={defaultHref} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Post Manager" />
     <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content={lang === 'tr' ? 'tr_TR' : 'en_US'} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={description ?? t('meta.homeDescription')} />
     <meta property="og:image" content={ogImage.href} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Post Manager. Draft your posts the easy way." />
+    <meta property="og:image:alt" content={t('meta.ogAlt')} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={description ?? t('meta.homeDescription')} />
     <meta name="twitter:image" content={ogImage.href} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
