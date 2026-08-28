@@ -4,7 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Durum
 
-Repo henüz kurulmadı. Kökte yalnızca referans tasarımlar (`docs/`), devir notu (`HANDOFF.md`) ve taslak kural dosyası (`CLAUDE.code.md`) var. `package.json`, `src/` ve git geçmişi yok. İlk iş Astro projesini kurmak.
+v1 kuruldu ve çalışıyor: altı rota, beş platform bileşeni, tur ve kalıcılık yerinde.
+
+```
+src/
+  data/          platforms.ts (PLATFORMS, FIELDS, LIMITS), legal.ts
+  lib/           store.ts (tek yazma yolu), storage.ts, media.ts, chain.ts, tour.ts, anchors.ts
+  layouts/       Base.astro, Shell.astro (home ve app), Legal.astro
+  components/    PlatformRow.tsx, Icon.tsx, SiteFooter.astro, composers/*.tsx
+  islands/       HeaderBar.tsx, AppScreen.tsx, TourGuide.tsx, ContactForm.tsx
+  pages/         index, app, privacy, terms, cookies, contact
+public/          favicon.svg, logo.png, og.png, icons/*.svg
+```
+
+Island sayısı dörtte tutuldu: `HeaderBar` (sekmeler, adlandırma, bilgi kutusu), `AppScreen` (seçici, notlar, editör satırları), `TourGuide`, `ContactForm`. Ana sayfadaki iki buton ve legal gezinme düz bağlantıdır, island değildir. Başlığın kaydırmada gizlenmesi ve legal sayfadaki Return `<script>` ile çözülür, island açmaz.
 
 `.gitignore` `docs/`, `HANDOFF.md` ve `CLAUDE.code.md` dosyalarını dışarıda bırakır: bunlar yerel referanstır, sürüme girmez. `CLAUDE.md` sürüme girer.
 
@@ -14,18 +27,19 @@ Legal sayfaların metinleri en son elden geçirilir. Uygulama davranışı oturd
 
 ## Komutlar
 
-Proje kurulduktan sonra (pnpm, Node 22 LTS):
+pnpm, Node 22 LTS:
 
 ```
 pnpm dev                                  # geliştirme sunucusu
 pnpm build                                # statik çıktı
 pnpm preview                              # çıktıyı yerel sun
-pnpm vitest                               # birim testleri (izleme)
-pnpm vitest run src/lib/foo.test.ts       # tek dosya
+pnpm test                                 # birim testleri
+pnpm test:watch                           # izleme kipi
+pnpm vitest run src/lib/storage.test.ts   # tek dosya
 pnpm vitest run -t "gerekli metin"        # tek test
-pnpm playwright test                      # akış testleri
-pnpm playwright test tests/app.spec.ts    # tek akış dosyası
-pnpm astro check                          # tip ve şablon denetimi
+pnpm test:e2e                             # akış testleri (build ve preview'i kendisi ayağa kaldırır)
+pnpm exec playwright test -g "reload"     # tek akış testi
+pnpm check                                # tip ve şablon denetimi
 ```
 
 ## Referans tasarım
@@ -42,6 +56,7 @@ Tasarım tek bir client bileşenidir: `state.route` (`home` / `app` / `legal`) i
 
 - Tasarımdaki `route` durumu Astro rotalarına açılır.
 - Tasarımdaki `legal` durumu `/privacy`, `/terms`, `/cookies`, `/contact` sayfalarına açılır. `/cookies` rota haritasında yoktu ama gerekli: uygulama tarayıcıda veri saklıyor, bu sayfa onun karşılığıdır.
+- `docs/Projects.dc.html` uygulama ekranının ta kendisidir (`initial-route="app"`). İki ada tek ekran düştüğü için `/projects` rotası `astro.config.mjs` içinde `/app`'e yönlendirilir.
 - Ortak kabuk (header, proje sekmeleri, footer, alt linkler) tek layout: `src/layouts/Shell.astro`.
 - Durum tutması zorunlu bloklar Preact island (`client:load`). Statik olabilen hiçbir şey island olmaz.
 
@@ -59,13 +74,15 @@ projects  { [id]: { selected: string[], open: {}, content: {} } }
 - `content`: düz anahtar/değer sözlüğü, anahtarlar `FIELDS` listesinden gelir ve `<platform>_<alan>` biçimindedir (`reddit_title`, `linkedin_body`, `instagram_caption`). Yeni bir alan eklerken hem `FIELDS` karşılığını hem editörü hem önizlemeyi hem kalıcılık şemasını güncelle.
 - Yazma yolu tek noktadan geçer: `setField(key, value)` -> `patch(fn)` -> aktif projeyi kopyalayarak değiştirir. Bu tek yazma noktası korunmalı.
 
-Platformlar (`PLATFORMS`): `reddit`, `linkedin`, `instagram`, `twitter` (Twitter / X), `threads`. Beş platform, hepsi bu.
+Platformlar (`PLATFORMS`): `reddit`, `linkedin`, `instagram`, `twitter` (Twitter / X), `threads`. Beş platform, hepsi bu. Yeni proje `selected: ['twitter']` ile açılır, ekran hiçbir zaman boş karşılamaz.
+
+Zincir tutan iki bileşen (Twitter, Threads) `src/lib/chain.ts` üzerinden çalışır: ilk gönderi `<platform>_body`, devamı `<platform>_thread` dizisi. İkisi de kalıcıdır. Medya kovaları `<platform>#<index>` adıyla ayrılır.
 
 dev.to yapılmayacak. Tasarımda editörü ve `devto_*` alanları var, bunlar taşınmaz: `PLATFORMS` listesine girmez, `FIELDS` içine `devto_*` anahtarı eklenmez, `devIns` benzeri markdown yardımcıları yazılmaz. Tasarımda görüp de kodda bulamadığın dev.to parçaları eksik değil, kapsam dışı.
 
 Platforma özel kurallar tasarımda gömülüdür ve taşınmalıdır:
 
-- Reddit: bağlantı, görsel ve video karşılıklı olarak birbirini kilitler (`rdLocked`); gövde `contentEditable`, seçim aralığı (`_rdRange`) elle korunur ve proje değişince `innerHTML` yeniden yazılır.
+- Reddit: bağlantı, görsel ve video karşılıklı olarak birbirini kilitler; gövde `contentEditable`, seçim aralığı elle korunur ve yalnızca proje değişince `innerHTML` yeniden yazılır (her tuşta yazmak imleci düşürür).
 - Twitter: 280 karakter, 260'ta sarı, 280 üstü kırmızı halka; zincir gönderiler `twMore`; gönderi başına en çok 4 medya.
 - LinkedIn: 3000 karakterde sayaç rengi değişir.
 
@@ -92,17 +109,48 @@ Kurallar:
 - Okuma yalnızca client tarafında olur. Sayfalar statik üretilir, ilk boyamada kayıtlı durum henüz yoktur; island'lar buna göre yazılır, sunucuda yokmuş gibi davranan bir kabuk çizip sonra doldururlar.
 - Kayıt yoksa veya bozuksa uygulama boş projeyle açılır, hata vermez.
 
-Medya bunun dışındadır: görsel ve video sayfa açıkken bellekte tutulur, kapanınca gider, hiçbir zaman diske yazılmaz. Blob URL'leri sayfa ömrüyle sınırlıdır, kaydetmek zaten çalışmaz. Gizlilik ve çerez metinleri tam olarak bunu taahhüt eder, uygulama bu iki metinden sapmamalı.
+- Bekleyen yazma `pagehide` ve sekme gizlenmesinde boşaltılır. Bu olmadan hızlı bir yenileme son tuş vuruşlarını yutar, akış testi bunu yakalar.
+
+Medya bunun dışındadır: görsel ve video sayfa açıkken bellekte tutulur, kapanınca gider, hiçbir zaman diske yazılmaz. Blob URL'leri sayfa ömrüyle sınırlıdır, kaydetmek zaten çalışmaz. Instagram alt metni de medyaya bağlı olduğu için aynı ömre sahiptir. Gizlilik ve çerez metinleri tam olarak bunu taahhüt eder, uygulama bu iki metinden sapmamalı.
+
+Kalıcı olmayan tek arayüz durumu, bileşen içi akordeonlar (Instagram'ın Share to / Accessibility / Advanced bölümleri) ve sekme seçimleridir. Bunlar tasarımdaki gibi açık başlar.
 
 ## Tasarım tokenları
 
 `_ds` stil paketi repoda yok, yalnızca değişken adları görünür. `src/styles/theme.css` içinde tanımlanacak tokenlar: `--color-bg`, `--color-surface`, `--color-text`, `--color-divider`, `--color-accent`, `--color-accent-700`, `--color-neutral-200`, `--radius-md`, `--font-heading`, `--font-body`, `--font-heading-weight`.
 
-Somut değerler `Logo & OG.dc.html` içinden okunur: accent `#b68235`, accent-700 `#7d5411`, metin `#201f1d`, arka plan `#f3f2f2`, ayraç `rgba(32,31,29,0.12)`. Tipografi Public Sans (başlık ağırlığı 600) ve Newsreader. OG görseli 1200x630.
+Somut değerler `Logo & OG.dc.html` içinden okunur: accent `#b68235`, accent-700 `#7d5411`, metin `#201f1d`, arka plan `#f3f2f2`, ayraç `rgba(32,31,29,0.12)`. Tipografi Public Sans (başlık ağırlığı 600) ve Newsreader, Google Fonts üzerinden yüklenir; gizlilik metni zaten "yazı tiplerini bir sağlayıcıdan yükler" der.
+
+Marka varlıkları `public/` altında: `og.png` (1200x630, tüm sayfaların OG ve Twitter görseli), `logo.png` (apple touch icon), `favicon.svg` (pm sekme işaretinin vektör hali, 16px'te net durur). Başlıktaki ve ana sayfadaki işaret tasarımdaki gibi işaretleme ile çizilir, raster dosya değildir. Mutlak OG adresi için `astro.config.mjs` içindeki `site` alanı kullanılır, gerçek alan adı belli olunca oraya yazılır.
 
 Tasarımda `_ds` paketinden gelen sınıflar da kullanılır: `btn` (`btn-primary`, `btn-secondary`, `btn-ghost`, `btn-icon`), `input`, `field`, `hr`, `elev-lg`, `dialog-backdrop`. Bunların Tailwind karşılıkları bir kez kurulur, sonra her yerde aynısı kullanılır.
 
 Mobil eşiği 760px (`isMobile`). Başlık kaydırmada gizlenir: 130px altında ve 14px'ten büyük hareketlerde, en az 420ms aralıkla.
+
+## Tur
+
+Yedi adım, `src/lib/tour.ts` içinde. Hedefler `src/lib/anchors.ts` üzerinden bulunur: tur `HeaderBar` içindeki artı, kalem ve soru işaretine de, `AppScreen` içindeki Twitter satırı ve silme düğmesine de aynı biçimde erişir, başka bir island'ın DOM'una uzanmaz.
+
+Adımların bir kısmı anlattığı işi yapar: 2'den 3'e geçerken adlandırma kutusunu örnek adla açar, 3'ten 4'e geçerken projeyi oluşturur, 4'ten 5'e geçerken Twitter satırını açar. Bu işleri `HeaderBar` `registerTourCommands` ile devreder.
+
+Tur açıkken `document.body.dataset.tour` işaretlenir, başlık kaydırmada gizlenmez. Tur `/app?tour=1` ile başlar ve bayrak `history.replaceState` ile silinir, yenileme turu baştan açmaz.
+
+## Tasarımdan bilinçli sapmalar
+
+Tasarım tek doğruluk kaynağıdır, ama şu noktalarda kendi içinde tutarsızdı. Sapmalar bilerek yapıldı:
+
+- Threads bileşeninin arayüz metni tasarımda Türkçeydi ("Yeni yazışma", "Yazışmaya ekle"), sitenin geri kalanı İngilizce. İngilizceye çevrildi.
+- `instagram_location` ve `instagram_alt` alanları `FIELDS` içinde vardı ama hiçbir yere bağlı değildi, atıldı. Alt metin tasarımda zaten medya nesnesinin üstünde duruyor.
+- Instagram anahtarları (AI etiketi, yorumları kapatma, Threads paylaşımı) tasarımda bileşen durumundaydı, kalıcı değildi. Kullanıcı seçimi oldukları için `instagram_*` alanlarına taşındı ve saklanıyor.
+- Twitter ve Threads zincirlerinin metni tasarımda kalıcı değildi. Yazılan metin olduğu için saklanıyor.
+- Medya tasarımda projeden bağımsız tek bir listeydi, sekme değiştirince öteki projeye taşıyordu. Proje ve platform başına ayrıldı.
+- `thCount` ve `liCount` tasarımda hesaplanıp hiç kullanılmıyordu. Threads'te sayaç yok, LinkedIn 3000 eşiği korundu.
+
+## Bilinen eksikler
+
+- Dil düğmesi yalnızca EN ve TR arasında etiketi çevirir ve tercihi saklar, arayüz metinleri hâlâ İngilizcedir. Tasarımda da böyle.
+- İletişim formu maket, hiçbir yere göndermez. Tasarımda da böyle.
+- Legal metinler taslak, sayfalarda bunu söyleyen bir not var.
 
 ## Dallar ve commit
 
@@ -115,12 +163,3 @@ Mobil eşiği 760px (`isMobile`). Başlık kaydırmada gizlenir: 130px altında 
 ## Yazım
 
 Em dash (—) ve en dash (–) hiçbir yerde kullanılmaz: ne kodda, ne arayüz metninde, ne commit mesajında, ne dokümanda. Yerine nokta, virgül, iki nokta veya parantez.
-
-## Sıralama
-
-1. Astro projesini kur, layout ve tokenları çıkar.
-2. Statik sayfalar: Home, Projects, Privacy, Terms, Cookies, Contact.
-3. `/app` kabuğu: proje sekmeleri, platform seçici, notlar.
-4. Platform editörleri ve önizlemeleri, sırayla: Reddit, LinkedIn, Instagram, X, Threads.
-5. Tur (onboarding) akışı: 7 adım, hedeflere `anchor` ile bağlanır, ilerledikçe gerçek arayüzü kullanır (proje açar, adlandırma kutusunu doldurur).
-6. `main`'e `v1` olarak birleştir ve etiketle.
