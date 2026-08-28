@@ -9,11 +9,13 @@ v1 kuruldu ve çalışıyor: altı rota, beş platform bileşeni, tur ve kalıc�
 ```
 src/
   data/          platforms.ts (PLATFORMS, FIELDS, LIMITS), legal.ts
-  lib/           store.ts (tek yazma yolu), storage.ts, media.ts, chain.ts, tour.ts, anchors.ts
+  lib/           store.ts (tek yazma yolu), storage.ts, media.ts, chain.ts, tour.ts, anchors.ts, contact.ts
   layouts/       Base.astro, Shell.astro (home ve app), Legal.astro
   components/    PlatformRow.tsx, Icon.tsx, SiteFooter.astro, composers/*.tsx
   islands/       HeaderBar.tsx, AppScreen.tsx, TourGuide.tsx, ContactForm.tsx
   pages/         index, app, privacy, terms, cookies, contact
+functions/api/   contact.ts (Cloudflare Pages Function)
+scripts/         build-headers.mjs (derleme sonrası CSP ve önbellek başlıkları)
 public/          favicon.svg, logo.png, og.png, icons/*.svg
 ```
 
@@ -31,8 +33,9 @@ pnpm, Node 22 LTS:
 
 ```
 pnpm dev                                  # geliştirme sunucusu
-pnpm build                                # statik çıktı
-pnpm preview                              # çıktıyı yerel sun
+pnpm build                                # statik çıktı ve dist/_headers
+pnpm preview                              # yalnızca statik dosyalar
+pnpm preview:cf                           # Pages Function ve başlıklarla birlikte
 pnpm test                                 # birim testleri
 pnpm test:watch                           # izleme kipi
 pnpm vitest run src/lib/storage.test.ts   # tek dosya
@@ -40,6 +43,7 @@ pnpm vitest run -t "gerekli metin"        # tek test
 pnpm test:e2e                             # akış testleri (build ve preview'i kendisi ayağa kaldırır)
 pnpm exec playwright test -g "reload"     # tek akış testi
 pnpm check                                # tip ve şablon denetimi
+pnpm exec tsc -p functions/tsconfig.json  # Pages Function tip denetimi
 ```
 
 ## Referans tasarım
@@ -127,6 +131,36 @@ Tasarımda `_ds` paketinden gelen sınıflar da kullanılır: `btn` (`btn-primar
 
 Mobil eşiği 760px (`isMobile`). Başlık kaydırmada gizlenir: 130px altında ve 14px'ten büyük hareketlerde, en az 420ms aralıkla.
 
+## Barındırma ve iletişim formu
+
+Yığın tümüyle ücretsiz katmanda: Cloudflare Pages (statik), Pages Functions (form ucu), Turnstile (spam), Resend (mail teslimi). Adım adım kurulum `DEPLOY.md` içinde.
+
+Site `output: 'static'` kalır. Form ucu Astro adaptörü değil, kökteki `functions/api/contact.ts` dosyasıdır; Cloudflare Pages onu `dist` ile yan yana kendisi ayağa kaldırır. Bu yüzden tek bir uç nokta için tüm siteyi SSR'a çevirmek gerekmedi.
+
+Doğrulama `src/lib/contact.ts` içinde durur ve iki taraf da aynı dosyayı kullanır. Tarayıcıdaki kontrol nezakettir, sunucu hepsini baştan yapar ve asıl kapı odur.
+
+Uç noktanın sırası: gövde boyu, JSON ayrıştırma, bot işaretleri, alan doğrulama, Turnstile, hız sınırı, mail. Karşılıkları:
+
+- Bot işaretleri (dolu honeypot, üç saniyeden hızlı gönderim) `200 {ok:true}` alır. Sessizce düşer, çünkü gerçek yanıtı görmek bota neyin yakalandığını öğretir.
+- Turnstile başarısız olursa `403` döner ve mail hiç denenmez.
+- `onRequest` tek giriştir. Yalnızca `onRequestPost` yazılırsa GET isteği statik varlıklara düşüp ana sayfayı `200` ile döndürür, bu yüzden metot kontrolü elle yapılır.
+- Ada gelen satır sonları `singleLine` ile silinir, mail başlığına fazladan alan sızmasın diye. Mesaj HTML gövdesine `escapeHtml` ile girer.
+- `RATE_LIMIT` KV bağlaması isteğe bağlıdır. Yoksa uç nokta çalışır, sadece adres başına sayaç tutmaz.
+
+Honeypot `display:none` değil, ekran dışıdır: bazı botlar tarayıcının boyamadığı alanları atlar. Klavye ve ekran okuyucu `tabindex="-1"` ve `aria-hidden` ile zaten atlar.
+
+## Güvenlik başlıkları
+
+`dist/_headers` her derlemede `scripts/build-headers.mjs` tarafından üretilir, elle düzenlenmez.
+
+CSP satır içi script'lere `'unsafe-inline'` vermez. Astro sayfa başına birkaç satır içi script yayar (island çalışma zamanı, Shell ve Legal davranışları); script hepsinin sha256 özetini çıkarıp politikaya yazar. Bu yüzden Astro sürümü ya da o script'ler değişince özetler kendiliğinden yenilenir, ama `_headers` dosyasını elle taşımak siteyi kırar.
+
+`style-src` içinde `'unsafe-inline'` kalmak zorunda: tasarımın bütün ölçüleri style özniteliğinde duruyor. Asıl korunan yüzey script.
+
+`img-src` ve `media-src` içinde `blob:` var, medya önizlemeleri object URL olduğu için.
+
+Değişiklikten sonra `pnpm preview:cf` ile açıp konsolda CSP ihlali olmadığını görmek gerekir; `pnpm preview` başlıkları uygulamaz.
+
 ## Tur
 
 Yedi adım, `src/lib/tour.ts` içinde. Hedefler `src/lib/anchors.ts` üzerinden bulunur: tur `HeaderBar` içindeki artı, kalem ve soru işaretine de, `AppScreen` içindeki Twitter satırı ve silme düğmesine de aynı biçimde erişir, başka bir island'ın DOM'una uzanmaz.
@@ -149,7 +183,6 @@ Tasarım tek doğruluk kaynağıdır, ama şu noktalarda kendi içinde tutarsız
 ## Bilinen eksikler
 
 - Dil düğmesi yalnızca EN ve TR arasında etiketi çevirir ve tercihi saklar, arayüz metinleri hâlâ İngilizcedir. Tasarımda da böyle.
-- İletişim formu maket, hiçbir yere göndermez. Tasarımda da böyle.
 - Legal metinler taslak, sayfalarda bunu söyleyen bir not var.
 
 ## Dallar ve commit
