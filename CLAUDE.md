@@ -14,8 +14,8 @@ src/
   components/    PlatformRow.tsx, Icon.tsx, SiteFooter.astro, composers/*.tsx
   islands/       HeaderBar.tsx, AppScreen.tsx, TourGuide.tsx, ContactForm.tsx
   pages/         index, app, privacy, terms, cookies, contact
-functions/api/   contact.ts (Cloudflare Pages Function)
-scripts/         build-headers.mjs (derleme sonrası CSP ve önbellek başlıkları)
+api/             contact.ts (Vercel fonksiyonu) ve testi
+scripts/         csp.mjs (derleme sonrası içerik güvenlik politikası)
 public/          favicon.svg, logo.png, og.png, icons/*.svg
 ```
 
@@ -33,9 +33,9 @@ pnpm, Node 22 LTS:
 
 ```
 pnpm dev                                  # geliştirme sunucusu
-pnpm build                                # statik çıktı ve dist/_headers
+pnpm build                                # statik çıktı ve CSP damgası
 pnpm preview                              # yalnızca statik dosyalar
-pnpm preview:cf                           # Pages Function ve başlıklarla birlikte
+pnpm dlx vercel dev                       # form ucuyla birlikte
 pnpm test                                 # birim testleri
 pnpm test:watch                           # izleme kipi
 pnpm vitest run src/lib/storage.test.ts   # tek dosya
@@ -43,7 +43,7 @@ pnpm vitest run -t "gerekli metin"        # tek test
 pnpm test:e2e                             # akış testleri (build ve preview'i kendisi ayağa kaldırır)
 pnpm exec playwright test -g "reload"     # tek akış testi
 pnpm check                                # tip ve şablon denetimi
-pnpm exec tsc -p functions/tsconfig.json  # Pages Function tip denetimi
+pnpm exec tsc -p api/tsconfig.json        # fonksiyon tip denetimi
 ```
 
 ## Referans tasarım
@@ -133,33 +133,40 @@ Mobil eşiği 760px (`isMobile`). Başlık kaydırmada gizlenir: 130px altında 
 
 ## Barındırma ve iletişim formu
 
-Yığın tümüyle ücretsiz katmanda: Cloudflare Pages (statik), Pages Functions (form ucu), Turnstile (spam), Resend (mail teslimi). Adım adım kurulum `DEPLOY.md` içinde.
+Yığın tümüyle ücretsiz katmanda: Vercel (statik site ve fonksiyon), Cloudflare Turnstile (spam), Resend (mail teslimi). Adım adım kurulum `DEPLOY.md` içinde.
 
-Site `output: 'static'` kalır. Form ucu Astro adaptörü değil, kökteki `functions/api/contact.ts` dosyasıdır; Cloudflare Pages onu `dist` ile yan yana kendisi ayağa kaldırır. Bu yüzden tek bir uç nokta için tüm siteyi SSR'a çevirmek gerekmedi.
+Site `output: 'static'` kalır ve Astro adaptörü **yoktur**. Form ucu kökteki `api/contact.ts` dosyasıdır; Vercel bunu `/api/contact` adresinde bir fonksiyon olarak kendisi yayına alır. Adaptör bir kez denendi ve bırakıldı: derleme sırasında pnpm deposuna sembolik bağlantı kurmaya çalışıyor, Windows'ta yönetici izni olmadan çalışmıyor, üstelik tek bir uç nokta için tüm siteye sunucu çalışma zamanı ekliyordu.
 
 Doğrulama `src/lib/contact.ts` içinde durur ve iki taraf da aynı dosyayı kullanır. Tarayıcıdaki kontrol nezakettir, sunucu hepsini baştan yapar ve asıl kapı odur.
 
-Uç noktanın sırası: gövde boyu, JSON ayrıştırma, bot işaretleri, alan doğrulama, Turnstile, hız sınırı, mail. Karşılıkları:
+Karar `handleContact` içinde toplanır: Vercel tipleri görmez, bağımlılıkları (Turnstile doğrulama ve mail gönderme) parametre olarak alır. Bu yüzden bütün yolları `api/contact.test.ts` doğrudan sınayabiliyor, yayına almadan.
+
+Sıra: yapılandırma, gövde biçimi, bot işaretleri, alan doğrulama, Turnstile, mail. Karşılıkları:
 
 - Bot işaretleri (dolu honeypot, üç saniyeden hızlı gönderim) `200 {ok:true}` alır. Sessizce düşer, çünkü gerçek yanıtı görmek bota neyin yakalandığını öğretir.
 - Turnstile başarısız olursa `403` döner ve mail hiç denenmez.
-- `onRequest` tek giriştir. Yalnızca `onRequestPost` yazılırsa GET isteği statik varlıklara düşüp ana sayfayı `200` ile döndürür, bu yüzden metot kontrolü elle yapılır.
+- POST dışındaki her metot `405` alır.
 - Ada gelen satır sonları `singleLine` ile silinir, mail başlığına fazladan alan sızmasın diye. Mesaj HTML gövdesine `escapeHtml` ile girer.
-- `RATE_LIMIT` KV bağlaması isteğe bağlıdır. Yoksa uç nokta çalışır, sadece adres başına sayaç tutmaz.
+- Hız sınırı yok. Turnstile, honeypot ve süre kontrolü birlikte taşıyor; gerekirse `handleContact` saf olduğu için araya sayaç koymak kolay.
 
 Honeypot `display:none` değil, ekran dışıdır: bazı botlar tarayıcının boyamadığı alanları atlar. Klavye ve ekran okuyucu `tabindex="-1"` ve `aria-hidden` ile zaten atlar.
 
+Turnstile hostname listesi Cloudflare panelinde tutulur. Yeni bir alan adı eklenmezse doğrulama sunucuda başarısız olur ve form kullanıcıya "spam check did not pass" der.
+
 ## Güvenlik başlıkları
 
-`dist/_headers` her derlemede `scripts/build-headers.mjs` tarafından üretilir, elle düzenlenmez.
+İki yere bölünür:
 
-CSP satır içi script'lere `'unsafe-inline'` vermez. Astro sayfa başına birkaç satır içi script yayar (island çalışma zamanı, Shell ve Legal davranışları); script hepsinin sha256 özetini çıkarıp politikaya yazar. Bu yüzden Astro sürümü ya da o script'ler değişince özetler kendiliğinden yenilenir, ama `_headers` dosyasını elle taşımak siteyi kırar.
+- **İçerik güvenlik politikası**: her derlemeden sonra `scripts/csp.mjs` sayfa başına bir `<meta>` damgalar. Astro'nun satır içi script'lerinin sha256 özetleri o sayfanın kendi baytlarından çıkarılır, bu yüzden politika hiçbir zaman eskiyemez.
+- **Geri kalanı**: `vercel.json` içinde gerçek başlık olarak. `frame-ancestors` meta ile taşınamadığı için oradadır, yanında `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` ve önbellek kuralları.
 
-`style-src` içinde `'unsafe-inline'` kalmak zorunda: tasarımın bütün ölçüleri style özniteliğinde duruyor. Asıl korunan yüzey script.
+Astro'nun kendi `experimental.csp` desteği denendi ve bırakıldı. Satır içi stilleri de özetliyor, `style-src` içinde bir özet belirdiği anda tarayıcılar aynı yönergedeki `'unsafe-inline'` değerini yok sayıyor, ve tasarımın bütün ölçüleri style özniteliğinde olduğu için sayfa dağılıyordu. `style-src-attr` ayrı yönergesi ise Astro'nun şemasına girmiyor. Bu yüzden politika elle üretilir ve `style-src` içinde **hiçbir zaman özet bulunmamalıdır**.
+
+`build.inlineStylesheets: 'never'` de bu yüzden açık: stil kuralları bağlı dosyada durur.
 
 `img-src` ve `media-src` içinde `blob:` var, medya önizlemeleri object URL olduğu için.
 
-Değişiklikten sonra `pnpm preview:cf` ile açıp konsolda CSP ihlali olmadığını görmek gerekir; `pnpm preview` başlıkları uygulamaz.
+Değişiklikten sonra `pnpm build && pnpm preview` ile açıp konsolda CSP ihlali olmadığını görmek gerekir. Özellikle düzenin bozulmadığına bakmak lazım: satır içi stiller kesilirse sayfa çöker ve bu sessiz bir hatadır.
 
 ## Tur
 
@@ -183,7 +190,8 @@ Tasarım tek doğruluk kaynağıdır, ama şu noktalarda kendi içinde tutarsız
 ## Bilinen eksikler
 
 - Dil düğmesi yalnızca EN ve TR arasında etiketi çevirir ve tercihi saklar, arayüz metinleri hâlâ İngilizcedir. Tasarımda da böyle.
-- Legal metinler taslak, sayfalarda bunu söyleyen bir not var.
+- Legal metinler taslak, sayfalarda bunu söyleyen bir not var. Gizlilik, şartlar ve çerez metinleri artık gerçekten olan biteni anlatıyor: iletişim formunun ne gönderdiği, Vercel, Turnstile ve Resend adlarıyla.
+- İletişim formunda hız sınırı yok, ayrıntısı barındırma bölümünde.
 
 ## Dallar ve commit
 
@@ -191,7 +199,7 @@ Tasarım tek doğruluk kaynağıdır, ama şu noktalarda kendi içinde tutarsız
 - Commit mesajları İngilizce. Kendinden, araçtan veya yapay zekadan söz edilmez: imza, "generated by" ve eş yazar satırı yok.
 - Her küçük kod bloğu değişikliği kendi commit'i olur. Bir commit tek bir işi anlatır, "wip" commit yok.
 - Biçim: `<type>: <short imperative summary>`. Tipler: `feat`, `fix`, `refactor`, `style`, `chore`, `docs`, `test`.
-- Uzak repo sonradan verilecek. Adres gelene kadar yerel çalış, geldiğinde `origin` olarak ekle.
+- Uzak repo: `https://github.com/TanerTalas/post-manager.git`, `origin` olarak bağlı.
 
 ## Yazım
 
