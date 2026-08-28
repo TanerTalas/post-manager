@@ -64,3 +64,36 @@ test('projects redirects to the app screen', async ({ page }) => {
   await page.goto('/projects');
   await expect(page).toHaveURL(/\/app\/?$/);
 });
+
+test('the contact form refuses an empty submission before it leaves the browser', async ({
+  page,
+}) => {
+  let posted = false;
+  await page.route('**/api/contact', (route) => {
+    posted = true;
+    return route.fulfill({ status: 200, body: '{"ok":true}' });
+  });
+
+  await page.goto('/contact');
+  await page.getByRole('button', { name: 'Send it' }).click();
+
+  await expect(page.getByText('Tell me what to call you.')).toBeVisible();
+  await expect(page.getByText('I need somewhere to write back.')).toBeVisible();
+  await expect(page.getByText('The message is empty.')).toBeVisible();
+  expect(posted).toBe(false);
+});
+
+test('the contact form carries a honeypot that no person can reach', async ({ page }) => {
+  await page.goto('/contact');
+
+  const honeypot = page.locator('input[name="company"]');
+  await expect(honeypot).toHaveCount(1);
+
+  // Positioned off screen rather than display:none, because some bots skip the
+  // fields a browser would not paint. Keyboard and screen readers still skip it.
+  await expect(honeypot).toHaveAttribute('tabindex', '-1');
+  await expect(page.locator('[aria-hidden="true"] input[name="company"]')).toHaveCount(1);
+
+  const box = await honeypot.boundingBox();
+  expect(box?.x ?? 0).toBeLessThan(0);
+});
