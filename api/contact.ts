@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { CONTACT_LIMITS } from '../src/lib/contact';
-import { handleContact, readConfig } from '../src/lib/contact-endpoint';
+import { CONTACT_LIMITS } from '../src/lib/contact.js';
+import { handleContact, readConfig } from '../src/lib/contact-endpoint.js';
 
 /**
  * The only file in this directory, and deliberately so: Vercel deploys every

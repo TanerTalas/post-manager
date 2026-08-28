@@ -12,7 +12,7 @@ import {
   singleLine,
   validateContact,
   type ContactPayload,
-} from './contact';
+} from './contact.js';
 
 const TURNSTILE_VERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
