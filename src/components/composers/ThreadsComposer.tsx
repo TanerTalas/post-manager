@@ -4,15 +4,18 @@ import { addChainPost, bucketFor, chainPosts, removeChainPost, setChainPost } fr
 import { addMedia, removeMedia, useMedia } from '~/lib/media';
 import { readField, setField } from '~/lib/store';
 import type { Project } from '~/lib/types';
+import { translator, type Lang } from '~/i18n';
 
 interface Props {
   project: Project;
+  lang: Lang;
 }
 
 const KEYS = { body: 'threads_body', thread: 'threads_thread' };
 const SANS = "-apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif";
 
-export default function ThreadsComposer({ project }: Props) {
+export default function ThreadsComposer({ project, lang }: Props) {
+  const t = translator(lang);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const target = useRef(0);
   const [emojiFor, setEmojiFor] = useState(-1);
@@ -41,7 +44,7 @@ export default function ThreadsComposer({ project }: Props) {
         style={`width:100%;margin:0 0 20px;border:1px solid rgba(0,0,0,0.1);border-radius:20px;background:#fff;color:#000;font-family:${SANS};box-shadow:rgba(0,0,0,0.07) 0 6px 22px;overflow:hidden`}
       >
         <div style="display:flex;align-items:center;justify-content:center;padding:13px 18px;border-bottom:1px solid rgba(0,0,0,0.09)">
-          <span style="font-size:16px;font-weight:700">New thread</span>
+          <span style="font-size:16px;font-weight:700">{t('threads.newThread')}</span>
         </div>
 
         <div style="display:flex;flex-direction:column;padding:16px 18px 4px">
@@ -52,6 +55,7 @@ export default function ThreadsComposer({ project }: Props) {
               position={position}
               text={text}
               topic={topic}
+              lang={lang}
               emojiOpen={emojiFor === position}
               onToggleEmoji={() => setEmojiFor((current) => (current === position ? -1 : position))}
               onAddMedia={() => {
@@ -72,7 +76,7 @@ export default function ThreadsComposer({ project }: Props) {
             <span style="flex:none;display:grid;place-items:center;width:24px;height:24px;margin-left:6px;border-radius:50%;background:#f2f2f2;color:#c4c4c4;font-size:11px;font-weight:600">
               FD
             </span>
-            <span style="font-size:15px;color:#999">Add to thread</span>
+            <span style="font-size:15px;color:#999">{t('threads.addToThread')}</span>
           </div>
         </div>
       </div>
@@ -85,6 +89,7 @@ interface PostProps {
   position: number;
   text: string;
   topic: string;
+  lang: Lang;
   emojiOpen: boolean;
   onToggleEmoji: () => void;
   onAddMedia: () => void;
@@ -96,11 +101,13 @@ function ChainPost({
   position,
   text,
   topic,
+  lang,
   emojiOpen,
   onToggleEmoji,
   onAddMedia,
   onRemove,
 }: PostProps) {
+  const t = translator(lang);
   const media = useMedia(project.id, bucketFor('threads', position));
   const first = position === 0;
 
@@ -124,8 +131,8 @@ function ChainPost({
             <input
               value={topic}
               onInput={(event) => setField('threads_topic', (event.target as HTMLInputElement).value)}
-              placeholder="Community or topic"
-              aria-label="Community or topic"
+              placeholder={t('threads.topic')}
+              aria-label={t('threads.topic')}
               style="min-width:172px;max-width:100%;padding:0;border:0;outline:none;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:#000"
             />
           ) : (
@@ -147,8 +154,8 @@ function ChainPost({
             <button
               onClick={onRemove}
               class="hov-light"
-              title="Remove this post"
-              aria-label="Remove this post"
+              title={t('threads.removePost')}
+              aria-label={t('threads.removePost')}
               style="flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:transparent;color:#000;cursor:pointer"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
@@ -168,8 +175,8 @@ function ChainPost({
               (event.target as HTMLTextAreaElement).value,
             )
           }
-          placeholder={first ? "What's new?" : 'Say more'}
-          aria-label={first ? 'Post text' : `Post ${position + 1} text`}
+          placeholder={t(first ? 'threads.placeholder' : 'threads.morePlaceholder')}
+          aria-label={first ? t('threads.postText') : t('threads.postTextN', { n: position + 1 })}
           rows={1}
           style="width:100%;min-height:26px;margin-top:2px;resize:none;border:0;outline:none;background:transparent;font-family:inherit;font-size:15px;line-height:1.45;color:#000;padding:0"
         />
@@ -184,8 +191,8 @@ function ChainPost({
                 <button
                   onClick={() => removeMedia(project.id, bucketFor('threads', position), item.id)}
                   class="hov-scrim"
-                  title="Remove"
-                  aria-label={`Remove ${item.name}`}
+                  title={t('common.remove')}
+                  aria-label={`${t('common.remove')}: ${item.name}`}
                   style="position:absolute;top:8px;right:8px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.62);color:#fff;cursor:pointer"
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -202,21 +209,21 @@ function ChainPost({
             <button
               onClick={onAddMedia}
               class="hov-light"
-              title="Add image"
+              title={t('threads.addImage')}
               style="display:flex;align-items:center;gap:7px;height:32px;padding:0 12px 0 8px;border:0;border-radius:999px;background:transparent;color:inherit;font-family:inherit;font-size:14px;cursor:pointer"
             >
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
                 <rect x="3" y="4.5" width="18" height="15" rx="3.5" />
                 <path d="m4 16 4.5-4.5 4 4 3-2.5L20 17" />
               </svg>
-              Add
+              {t('threads.add')}
             </button>
           ) : (
             <button
               onClick={onAddMedia}
               class="hov-light"
-              title="Add image"
-              aria-label="Add image"
+              title={t('threads.addImage')}
+              aria-label={t('threads.addImage')}
               style="display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
             >
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -229,8 +236,8 @@ function ChainPost({
           <button
             onClick={onToggleEmoji}
             class="hov-light"
-            title="Emoji"
-            aria-label="Emoji"
+            title={t('threads.emoji')}
+            aria-label={t('threads.emoji')}
             style={`display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:${
               emojiOpen ? 'rgba(0,0,0,0.05)' : 'transparent'
             };color:inherit;cursor:pointer`}

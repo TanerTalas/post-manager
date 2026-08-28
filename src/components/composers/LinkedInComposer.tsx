@@ -3,9 +3,11 @@ import { EMOJIS } from '~/data/platforms';
 import { addMedia, removeMedia, setMedia, useMedia } from '~/lib/media';
 import { readField, setField } from '~/lib/store';
 import type { Project } from '~/lib/types';
+import { translator, type Lang } from '~/i18n';
 
 interface Props {
   project: Project;
+  lang: Lang;
 }
 
 const SANS = "-apple-system, system-ui, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -16,7 +18,8 @@ function tabStyle(on: boolean): string {
   };color:${on ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.6)'};font-family:${SANS};font-size:14px;font-weight:600;cursor:pointer`;
 }
 
-export default function LinkedInComposer({ project }: Props) {
+export default function LinkedInComposer({ project, lang }: Props) {
+  const t = translator(lang);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const textArea = useRef<HTMLTextAreaElement | null>(null);
   const [tab, setTab] = useState<'text' | 'media'>('text');
@@ -69,10 +72,10 @@ export default function LinkedInComposer({ project }: Props) {
 
       <div style="display:flex;gap:8px;margin:0 0 14px">
         <button class="hov-light" onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
-          Text
+          {t('linkedin.text')}
         </button>
         <button class="hov-light" onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
-          Media
+          {t('linkedin.media')}
         </button>
       </div>
 
@@ -86,12 +89,12 @@ export default function LinkedInComposer({ project }: Props) {
             </span>
             <div style="min-width:0">
               <div style="display:flex;align-items:center;gap:8px">
-                <span style="font-size:17px;font-weight:600;letter-spacing:-0.01em">Fenni</span>
+                <span style="font-size:17px;font-weight:600;letter-spacing:-0.01em">{t('linkedin.author')}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:rgba(0,0,0,0.9)">
                   <path d="M6 9h12l-6 7z" />
                 </svg>
               </div>
-              <div style="font-size:13px;color:rgba(0,0,0,0.6);margin-top:2px">Post to Anyone</div>
+              <div style="font-size:13px;color:rgba(0,0,0,0.6);margin-top:2px">{t('linkedin.audience')}</div>
             </div>
           </div>
 
@@ -99,8 +102,8 @@ export default function LinkedInComposer({ project }: Props) {
             ref={textArea}
             value={body}
             onInput={(event) => setField('linkedin_body', (event.target as HTMLTextAreaElement).value)}
-            placeholder="What do you want to talk about?"
-            aria-label="Post text"
+            placeholder={t('linkedin.placeholder')}
+            aria-label={t('linkedin.postText')}
             style="width:100%;min-height:300px;margin:12px 0 0;padding:0 16px;border:0;outline:none;resize:none;background:transparent;font-family:inherit;font-size:19px;line-height:1.5;color:rgba(0,0,0,0.9)"
           />
 
@@ -115,8 +118,8 @@ export default function LinkedInComposer({ project }: Props) {
                   <button
                     onClick={() => removeMedia(project.id, 'linkedin', item.id)}
                     class="hov-scrim"
-                    title="Remove"
-                    aria-label={`Remove ${item.name}`}
+                    title={t('common.remove')}
+                    aria-label={`${t('common.remove')}: ${item.name}`}
                     style="position:absolute;top:6px;right:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer"
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -132,8 +135,8 @@ export default function LinkedInComposer({ project }: Props) {
             <button
               onClick={() => setEmojiOpen((open) => !open)}
               class="hov-light-ink"
-              title="Open emoji keyboard"
-              aria-label="Open emoji keyboard"
+              title={t('linkedin.emoji')}
+              aria-label={t('linkedin.emoji')}
               style={`display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:${
                 emojiOpen ? 'rgba(0,0,0,0.06)' : 'transparent'
               };color:${emojiOpen ? 'rgba(0,0,0,0.9)' : '#5f5f5f'};cursor:pointer`}
@@ -168,8 +171,8 @@ export default function LinkedInComposer({ project }: Props) {
             <button
               onClick={() => fileInput.current?.click()}
               class="hov-light-ink"
-              title="Add media"
-              aria-label="Add media"
+              title={t('linkedin.addMedia')}
+              aria-label={t('linkedin.addMedia')}
               style="display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:transparent;color:#5f5f5f;cursor:pointer"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -183,7 +186,7 @@ export default function LinkedInComposer({ project }: Props) {
           style={`width:100%;margin:0 0 24px;background:#fff;border-radius:8px;box-shadow:rgba(140,140,140,0.2) 0 0 0 1px, rgba(0,0,0,0.3) 0 4px 4px 0;display:flex;flex-direction:column;font-family:${SANS};color:rgba(0,0,0,0.9);line-height:1.25`}
         >
           <div style="display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(0,0,0,0.08)">
-            <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em">Editor</span>
+            <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em">{t('linkedin.editor')}</span>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 208px">
@@ -198,14 +201,16 @@ export default function LinkedInComposer({ project }: Props) {
                   class="hov-dashed"
                   style="flex:1;min-height:220px;display:grid;place-items:center;gap:10px;border:1px dashed rgba(0,0,0,0.25);border-radius:8px;background:#fff;color:rgba(0,0,0,0.55);font-family:inherit;font-size:14px;cursor:pointer"
                 >
-                  Click to add an image
+                  {t('linkedin.clickToAdd')}
                 </button>
               )}
             </div>
 
             <div style="border-left:1px solid rgba(0,0,0,0.08);padding:14px;display:flex;flex-direction:column;gap:12px">
               <div style="font-size:13px;color:rgba(0,0,0,0.6)">
-                {media.length ? `${Math.min(selected, media.length - 1) + 1} of ${media.length}` : 'No media yet'}
+                {media.length
+                  ? t('linkedin.counter', { n: Math.min(selected, media.length - 1) + 1, total: media.length })
+                  : t('linkedin.noMedia')}
               </div>
 
               <div style="flex:1;display:flex;flex-direction:column;gap:10px;max-height:260px;overflow-y:auto">
@@ -213,7 +218,7 @@ export default function LinkedInComposer({ project }: Props) {
                   <div key={item.id} style="display:flex;flex-direction:column;gap:4px">
                     <button
                       onClick={() => setSelected(index)}
-                      aria-label={`Select ${item.name}`}
+                      aria-label={item.name}
                       style={`height:112px;padding:0;border:${
                         index === selected ? '2px solid #0a66c2' : '1px solid rgba(0,0,0,0.15)'
                       };border-radius:6px;background-color:#f8fafc;background-image:url("${item.url}");background-size:contain;background-position:center;background-repeat:no-repeat;cursor:pointer`}
@@ -229,8 +234,8 @@ export default function LinkedInComposer({ project }: Props) {
                 <button
                   onClick={duplicate}
                   class="hov-light-ink"
-                  title="Duplicate"
-                  aria-label="Duplicate"
+                  title={t('linkedin.duplicate')}
+                  aria-label={t('linkedin.duplicate')}
                   style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -245,8 +250,8 @@ export default function LinkedInComposer({ project }: Props) {
                     setSelected((index) => Math.max(0, index - 1));
                   }}
                   class="hov-light-ink"
-                  title="Delete"
-                  aria-label="Delete"
+                  title={t('linkedin.delete')}
+                  aria-label={t('linkedin.delete')}
                   style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -256,8 +261,8 @@ export default function LinkedInComposer({ project }: Props) {
                 <button
                   onClick={() => fileInput.current?.click()}
                   class="hov-light"
-                  title="Add"
-                  aria-label="Add media"
+                  title={t('common.add')}
+                  aria-label={t('linkedin.addMedia')}
                   style="display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid rgba(0,0,0,0.4);border-radius:50%;background:transparent;color:rgba(0,0,0,0.75);cursor:pointer"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">

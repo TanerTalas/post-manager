@@ -22,7 +22,6 @@ export interface AppState {
   active: string | null;
   homeTab: boolean;
   projects: Record<string, Project>;
-  lang: 'EN' | 'TR';
   neverConfirm: boolean;
   tourSeen: boolean;
   seq: number;

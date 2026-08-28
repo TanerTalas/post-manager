@@ -14,11 +14,17 @@ import {
   useStore,
 } from '~/lib/store';
 import { PlatformRow } from '~/components/PlatformRow';
+import { translator, type Lang } from '~/i18n';
 import { useDragScroll } from '~/lib/pointer';
 
 const dim = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
 
-export default function AppScreen() {
+interface Props {
+  lang: Lang;
+}
+
+export default function AppScreen({ lang }: Props) {
+  const t = translator(lang);
   const state = useStore();
   const ready = useHydrated();
   const project = activeProject(state);
@@ -53,10 +59,10 @@ export default function AppScreen() {
     return (
       <div style="padding:60px 0;text-align:center">
         <h2 style="font-family:var(--font-heading);font-weight:600;font-size:34px;letter-spacing:-0.015em;margin:0">
-          Nothing open yet
+          {t('app.emptyTitle')}
         </h2>
         <p style={`font-size:15px;line-height:1.7;max-width:40ch;margin:16px auto 0;color:${dim};text-wrap:pretty`}>
-          Press the plus in the tab bar to start a project
+          {t('app.emptyBody')}
         </p>
       </div>
     );
@@ -96,7 +102,7 @@ export default function AppScreen() {
           class="btn btn-ghost btn-icon"
           onClick={() => nudge(-1)}
           disabled={edges.start}
-          aria-label="Scroll platforms left"
+          aria-label={t('app.scrollPlatformsLeft')}
           style={`cursor:default;flex:none;opacity:${edges.start ? 0.3 : 1}`}
         >
           <Icon>{paths.chevronLeft}</Icon>
@@ -138,7 +144,7 @@ export default function AppScreen() {
           class="btn btn-ghost btn-icon"
           onClick={() => nudge(1)}
           disabled={edges.end}
-          aria-label="Scroll platforms right"
+          aria-label={t('app.scrollPlatformsRight')}
           style={`cursor:default;flex:none;opacity:${edges.end ? 0.3 : 1}`}
         >
           <Icon>{paths.chevronRight}</Icon>
@@ -148,13 +154,13 @@ export default function AppScreen() {
       <div style="margin-top:34px">
         <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:8px">
           <div style={`font-family:var(--font-heading);font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 60%, transparent)`}>
-            Notes
+            {t('app.notes')}
           </div>
           <button
             class="btn btn-ghost btn-icon"
             onClick={copyNotes}
-            title="Copy notes"
-            aria-label="Copy notes"
+            title={t('app.copyNotes')}
+            aria-label={t('app.copyNotes')}
             style="width:28px;height:28px"
           >
             {copied ? (
@@ -172,7 +178,7 @@ export default function AppScreen() {
           class="input"
           value={readField(project, 'notes')}
           onInput={(event) => setField('notes', (event.target as HTMLTextAreaElement).value)}
-          placeholder="Angle, hooks, links, anything you don't want to lose."
+          placeholder={t('app.notesPlaceholder')}
           style="min-height:96px;line-height:1.7;font-size:14px"
         />
       </div>
@@ -183,29 +189,27 @@ export default function AppScreen() {
           style="display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding-bottom:10px;border-bottom:1px solid var(--color-text)"
         >
           <h3 style="font-family:var(--font-heading);font-weight:600;font-size:21px;margin:0;letter-spacing:-0.01em">
-            Social Medias
+            {t('app.socialMedias')}
           </h3>
           <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent)">
-            {anyOpen ? 'Collapse all' : 'Expand all'}
+            {t(anyOpen ? 'app.collapseAll' : 'app.expandAll')}
           </span>
         </div>
 
         {PLATFORMS.filter((platform) => selected.includes(platform.id)).map((platform) => (
-          <PlatformRow key={platform.id} platform={platform} project={project} />
+          <PlatformRow key={platform.id} platform={platform} project={project} lang={lang} />
         ))}
 
         {selected.length === 0 ? (
           <p style={`font-size:14px;line-height:1.8;margin:26px 0;color:${dim};text-wrap:pretty`}>
-            No platform is active. Pick one above. Anything you&apos;ve already written stays exactly
-            where it was.
+            {t('app.noPlatform')}
           </p>
         ) : null}
       </div>
 
       <div style="margin-top:56px;border-top:1px solid var(--color-divider);padding-top:22px;display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start;justify-content:space-between">
         <p style={`flex:1;min-width:260px;max-width:62ch;font-size:13px;line-height:1.8;margin:0;color:color-mix(in srgb, var(--color-text) 62%, transparent);text-wrap:pretty`}>
-          Your text stays in this browser and is here again next time you open the page. Images and
-          video are never saved. Clear your browsing data and the projects go with it.
+          {t('app.storageNote')}
         </p>
         <button
           class="btn btn-outline-danger"
@@ -216,7 +220,7 @@ export default function AppScreen() {
           <Icon size={15} width={1.5}>
             {paths.trash}
           </Icon>
-          Delete project
+          {t('app.deleteProject')}
         </button>
       </div>
 
@@ -230,8 +234,7 @@ export default function AppScreen() {
             style="width:100%;max-width:430px;background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:24px"
           >
             <p style="font-size:15px;line-height:1.8;margin:0;text-wrap:pretty">
-              Turn {confirmName} off? Nothing you&apos;ve written will be deleted, don&apos;t worry. It
-              comes back the moment you switch it on again.
+              {t('app.confirmOff', { name: confirmName })}
             </p>
             <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:22px">
               <button
@@ -243,7 +246,7 @@ export default function AppScreen() {
                 }}
                 style="font-size:13px;white-space:nowrap"
               >
-                Don&apos;t show again
+                {t('app.neverAsk')}
               </button>
               <button
                 class="btn btn-primary"
@@ -253,7 +256,7 @@ export default function AppScreen() {
                 }}
                 style="font-size:13px;white-space:nowrap"
               >
-                Fine, turn it off
+                {t('app.turnOff')}
               </button>
             </div>
           </div>
@@ -270,14 +273,14 @@ export default function AppScreen() {
             style="width:100%;max-width:430px;background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:24px"
           >
             <h3 style="font-family:var(--font-heading);font-weight:600;font-size:22px;margin:0 0 10px">
-              Delete {project.name}?
+              {t('app.deleteTitle', { name: project.name })}
             </h3>
             <p style={`font-size:14px;line-height:1.8;margin:0;color:color-mix(in srgb, var(--color-text) 65%, transparent);text-wrap:pretty`}>
-              The tab and every draft inside it go away. This one can&apos;t be undone.
+              {t('app.deleteBody')}
             </p>
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px">
               <button class="btn btn-secondary" onClick={() => setPendingDelete(false)} style="font-size:13px">
-                Keep it
+                {t('app.keepIt')}
               </button>
               <button
                 class="btn btn-danger"
@@ -287,7 +290,7 @@ export default function AppScreen() {
                 }}
                 style="font-size:13px;white-space:nowrap"
               >
-                Delete project
+                {t('app.deleteProject')}
               </button>
             </div>
           </div>

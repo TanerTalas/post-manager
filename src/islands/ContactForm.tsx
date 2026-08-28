@@ -6,6 +6,8 @@ import {
   type ContactField,
   type ValidationError,
 } from '~/lib/contact';
+import { translator, type Lang } from '~/i18n';
+import type { StringKey } from '~/i18n/en';
 
 declare global {
   interface Window {
@@ -28,6 +30,7 @@ declare global {
 interface Props {
   /** Public Turnstile key. Empty until the deployment is configured. */
   siteKey: string;
+  lang: Lang;
 }
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
@@ -35,7 +38,13 @@ type Status = 'idle' | 'sending' | 'sent' | 'error';
 const MUTED = 'color-mix(in srgb, var(--color-text) 55%, transparent)';
 const DANGER = '#b3261e';
 
-export default function ContactForm({ siteKey }: Props) {
+export default function ContactForm({ siteKey, lang }: Props) {
+  const t = translator(lang);
+
+  // The endpoint answers with keys, never prose: it has no idea which language
+  // the page was in. Naming them is this side's job.
+  const say = (error: ValidationError | undefined) =>
+    error ? t(error.key as StringKey, error.values) : '';
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -94,8 +103,7 @@ export default function ContactForm({ siteKey }: Props) {
     };
   }, [siteKey]);
 
-  const errorFor = (field: ContactField) =>
-    errors.find((entry) => entry.field === field)?.message ?? '';
+  const errorFor = (field: ContactField) => say(errors.find((entry) => entry.field === field));
 
   const submit = async () => {
     if (status === 'sending') return;
@@ -104,7 +112,7 @@ export default function ContactForm({ siteKey }: Props) {
     const found = validateContact(payload);
 
     if (siteKey && !token.current) {
-      found.push({ field: 'token', message: 'Finish the spam check first.' });
+      found.push({ field: 'token', key: 'error.tokenRequired' });
     }
 
     setErrors(found);
@@ -143,11 +151,11 @@ export default function ContactForm({ siteKey }: Props) {
         setErrors(result.errors);
         setStatus('idle');
       } else {
-        setFailure(result.error ?? 'Something went wrong on the way. Try again in a moment.');
+        setFailure(t((result.error as StringKey) ?? 'error.generic'));
         setStatus('error');
       }
     } catch {
-      setFailure('The message could not leave your browser. Check your connection and try again.');
+      setFailure(t('error.network'));
       setStatus('error');
     } finally {
       // A token is good for one submission, so the widget starts over either way.
@@ -163,10 +171,10 @@ export default function ContactForm({ siteKey }: Props) {
         style="border:1px solid var(--color-accent);border-radius:var(--radius-md);background:color-mix(in srgb, var(--color-accent) 7%, transparent);padding:22px 24px"
       >
         <h2 style="font-family:var(--font-heading);font-weight:600;font-size:20px;margin:0 0 8px">
-          It is on its way
+          {t('contact.sentTitle')}
         </h2>
         <p style="font-size:15px;line-height:1.8;margin:0;text-wrap:pretty">
-          Thank you for writing. I read everything, and I reply to most of it within a few days.
+          {t('contact.sentBody')}
         </p>
         <button
           class="btn btn-secondary"
@@ -176,7 +184,7 @@ export default function ContactForm({ siteKey }: Props) {
           }}
           style="margin-top:18px;font-size:13px"
         >
-          Write another
+          {t('contact.writeAnother')}
         </button>
       </div>
     );
@@ -193,7 +201,7 @@ export default function ContactForm({ siteKey }: Props) {
       }}
     >
       <div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
-        <Field label="Your name" error={errorFor('name')}>
+        <Field label={t('contact.name')} error={errorFor('name')}>
           <input
             class="input"
             name="name"
@@ -203,11 +211,11 @@ export default function ContactForm({ siteKey }: Props) {
             disabled={sending}
             aria-invalid={errorFor('name') ? 'true' : undefined}
             onInput={(event) => setName((event.target as HTMLInputElement).value)}
-            placeholder="Fenni"
+            placeholder={t('contact.namePlaceholder')}
           />
         </Field>
 
-        <Field label="Where I can reach you" error={errorFor('email')}>
+        <Field label={t('contact.email')} error={errorFor('email')}>
           <input
             class="input"
             name="email"
@@ -218,13 +226,13 @@ export default function ContactForm({ siteKey }: Props) {
             disabled={sending}
             aria-invalid={errorFor('email') ? 'true' : undefined}
             onInput={(event) => setEmail((event.target as HTMLInputElement).value)}
-            placeholder="fenni@example.com"
+            placeholder={t('contact.emailPlaceholder')}
           />
         </Field>
       </div>
 
       <div style="margin-top:16px">
-        <Field label="What's on your mind" error={errorFor('message')}>
+        <Field label={t('contact.message')} error={errorFor('message')}>
           <textarea
             class="input"
             name="message"
@@ -233,7 +241,7 @@ export default function ContactForm({ siteKey }: Props) {
             disabled={sending}
             aria-invalid={errorFor('message') ? 'true' : undefined}
             onInput={(event) => setMessage((event.target as HTMLTextAreaElement).value)}
-            placeholder="Say as much or as little as you like."
+            placeholder={t('contact.messagePlaceholder')}
             style="min-height:150px;line-height:1.75"
           />
         </Field>
@@ -242,7 +250,7 @@ export default function ContactForm({ siteKey }: Props) {
       {/* Not for people. Hidden from view, from tab order and from screen readers. */}
       <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
         <label>
-          Company
+          {t('contact.company')}
           <input ref={honeypot} name={HONEYPOT_FIELD} tabIndex={-1} autocomplete="off" />
         </label>
       </div>
@@ -257,17 +265,13 @@ export default function ContactForm({ siteKey }: Props) {
 
       <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:18px">
         <button class="btn btn-primary" type="submit" disabled={sending} style="padding:10px 20px;font-size:14px">
-          {sending ? 'Sending' : 'Send it'}
+          {t(sending ? 'contact.sending' : 'contact.send')}
         </button>
         <span
           role={status === 'error' ? 'alert' : undefined}
           style={`font-size:12px;line-height:1.6;color:${status === 'error' ? DANGER : MUTED}`}
         >
-          {status === 'error'
-            ? failure
-            : siteKey
-              ? 'Checked for spam by Cloudflare. Your address is used to reply, nothing else.'
-              : 'The contact endpoint is not configured for this deployment yet.'}
+          {status === 'error' ? failure : t(siteKey ? 'contact.spamNote' : 'contact.notConfigured')}
         </span>
       </div>
     </form>

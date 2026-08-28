@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { LIMITS, RD_FLAIRS, RD_SUBS } from '~/data/platforms';
+import { LIMITS, NO_FLAIR, RD_FLAIRS, RD_SUBS } from '~/data/platforms';
 import { addMedia, removeMedia, setMedia, useMedia } from '~/lib/media';
 import { readField, readFlag, setField } from '~/lib/store';
 import type { Project } from '~/lib/types';
+import { translator, type Lang } from '~/i18n';
 
 const MUTED = '#8ba2ad';
 const DANGER = '#ff585b';
 
 interface Props {
   project: Project;
+  lang: Lang;
 }
 
 /** Strips the rich body back to plain text, to decide which placeholder shows. */
@@ -27,7 +29,8 @@ function escapeHtml(value: string): string {
 const roundBtn =
   'display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit';
 
-export default function RedditComposer({ project }: Props) {
+export default function RedditComposer({ project, lang }: Props) {
+  const t = translator(lang);
   const body = useRef<HTMLDivElement | null>(null);
   const range = useRef<Range | null>(null);
   const loadedFor = useRef<string | null>(null);
@@ -170,8 +173,9 @@ export default function RedditComposer({ project }: Props) {
     setLinkTouched(false);
   };
 
+  const flairLabel = (entry: string) => (entry === NO_FLAIR ? t('reddit.noFlair') : entry);
   const flairList = RD_FLAIRS.filter((entry) =>
-    entry.toLowerCase().includes(flairQuery.trim().toLowerCase()),
+    flairLabel(entry).toLowerCase().includes(flairQuery.trim().toLowerCase()),
   );
   const shownFlairs = showAllFlairs ? flairList : flairList.slice(0, 5);
 
@@ -187,7 +191,7 @@ export default function RedditComposer({ project }: Props) {
             <span style="display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:#f5f1ee">
               <img src="/icons/reddit.svg" alt="" width={22} height={22} style="display:block;width:22px;height:22px" />
             </span>
-            <span>r/{readField(project, 'reddit_sub').trim() || 'choose a community'}</span>
+            <span>r/{readField(project, 'reddit_sub').trim() || t('reddit.chooseCommunity')}</span>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="m8 9 4-4 4 4M8 15l4 4 4-4" />
             </svg>
@@ -198,7 +202,7 @@ export default function RedditComposer({ project }: Props) {
               <input
                 value={readField(project, 'reddit_sub')}
                 onInput={(event) => setField('reddit_sub', (event.target as HTMLInputElement).value)}
-                placeholder="Search communities"
+                placeholder={t('reddit.searchCommunities')}
                 style="width:100%;height:38px;padding:0 14px;border:1px solid rgba(255,255,255,0.14);border-radius:999px;background:rgba(255,255,255,0.06);color:#e5ebee;font-family:inherit;font-size:14px;outline:none"
               />
               <div style="display:flex;flex-direction:column;gap:2px;margin-top:8px">
@@ -253,12 +257,13 @@ export default function RedditComposer({ project }: Props) {
           value={title}
           onInput={(event) => setField('reddit_title', (event.target as HTMLInputElement).value)}
           maxLength={LIMITS.redditTitle}
-          aria-label="Post title"
+          aria-label={t('reddit.postTitle')}
           style="width:100%;padding:0;border:0;outline:none;background:transparent;font-family:inherit;font-size:20px;font-weight:700;line-height:1.35;color:#e5ebee"
         />
         {!title ? (
           <span style={`position:absolute;left:0;top:2px;pointer-events:none;font-size:20px;font-weight:700;line-height:1.35;color:${MUTED}`}>
-            Title<span style={`color:${DANGER}`}>*</span>
+            {t('reddit.title')}
+            <span style={`color:${DANGER}`}>*</span>
           </span>
         ) : null}
       </div>
@@ -274,7 +279,7 @@ export default function RedditComposer({ project }: Props) {
               <path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h8.6l8 8a1 1 0 0 1 0 2.4Z" />
               <circle cx="7.5" cy="7.5" r="1.3" />
             </svg>
-            Add flair and tags
+            {t('reddit.addFlair')}
           </button>
         ) : null}
 
@@ -286,7 +291,7 @@ export default function RedditComposer({ project }: Props) {
 
         {nsfw ? (
           <span style={`display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;border:1px solid ${DANGER};color:${DANGER};font-size:12px;font-weight:700;letter-spacing:0.04em`}>
-            NSFW
+            {t('reddit.nsfw')}
           </span>
         ) : null}
 
@@ -294,8 +299,8 @@ export default function RedditComposer({ project }: Props) {
           <button
             onClick={openFlair}
             class="hov-dark"
-            title="Edit flair and tags"
-            aria-label="Edit flair and tags"
+            title={t('reddit.editFlair')}
+            aria-label={t('reddit.editFlair')}
             style="display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:1px solid rgba(255,255,255,0.28);border-radius:50%;background:transparent;color:#e5ebee;cursor:pointer"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -309,15 +314,15 @@ export default function RedditComposer({ project }: Props) {
       {linkPanel ? (
         <div style="border:1px solid rgba(255,255,255,0.13);border-radius:16px;padding:16px 18px 18px;background:#0b0e10">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <span style="font-size:17px;font-weight:700">Add Link</span>
+            <span style="font-size:17px;font-weight:700">{t('reddit.addLink')}</span>
             <button
               onClick={() => {
                 setLinkPanel(false);
                 setLinkTouched(false);
               }}
               class="hov-dark-strong"
-              title="Close"
-              aria-label="Close"
+              title={t('common.close')}
+              aria-label={t('common.close')}
               style="display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -327,7 +332,7 @@ export default function RedditComposer({ project }: Props) {
           </div>
           <div style="margin-top:14px;border:2px solid #e5ebee;border-radius:16px;padding:9px 16px 11px">
             <div style={`font-size:13px;color:${MUTED}`}>
-              Link URL <span style={`color:${DANGER}`}>*</span>
+              {t('reddit.linkUrl')} <span style={`color:${DANGER}`}>*</span>
             </div>
             <input
               value={linkDraft}
@@ -357,7 +362,7 @@ export default function RedditComposer({ project }: Props) {
                 <circle cx="12" cy="12" r="9" />
                 <path d="M12 7.5v5.5M12 16.5h.01" />
               </svg>
-              Please fill out this field.
+              {t('reddit.fillField')}
             </div>
           ) : null}
         </div>
@@ -371,8 +376,8 @@ export default function RedditComposer({ project }: Props) {
           <button
             onClick={() => setLinkMenu((open) => !open)}
             class="hov-dark-strong"
-            title="Link options"
-            aria-label="Link options"
+            title={t('reddit.linkOptions')}
+            aria-label={t('reddit.linkOptions')}
             style="display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
@@ -394,7 +399,7 @@ export default function RedditComposer({ project }: Props) {
                 }}
                 style="display:block;width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:#e5ebee;font-family:inherit;font-size:14px;text-align:left;cursor:pointer"
               >
-                Edit link
+                {t('reddit.editLink')}
               </button>
               <button
                 class="hov-remove"
@@ -405,7 +410,7 @@ export default function RedditComposer({ project }: Props) {
                 }}
                 style={`display:block;width:100%;padding:9px 10px;border:0;border-radius:8px;background:transparent;color:${DANGER};font-family:inherit;font-size:14px;text-align:left;cursor:pointer`}
               >
-                Remove link
+                {t('reddit.removeLink')}
               </button>
             </div>
           ) : null}
@@ -423,8 +428,8 @@ export default function RedditComposer({ project }: Props) {
               <button
                 onClick={() => removeMedia(project.id, 'reddit', item.id)}
                 class="hov-scrim"
-                title="Remove"
-                aria-label={`Remove ${item.name}`}
+                title={t('common.remove')}
+                aria-label={`${t('common.remove')}: ${item.name}`}
                 style="position:absolute;top:6px;right:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;cursor:pointer"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -448,8 +453,8 @@ export default function RedditComposer({ project }: Props) {
           <button
             onClick={() => removeMedia(project.id, 'reddit', video.id)}
             class="hov-dark-strong"
-            title="Remove video"
-            aria-label="Remove video"
+            title={t('reddit.removeVideo')}
+            aria-label={t('reddit.removeVideo')}
             style="display:grid;place-items:center;flex:none;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -465,17 +470,18 @@ export default function RedditComposer({ project }: Props) {
           contentEditable
           role="textbox"
           aria-multiline="true"
-          aria-label="Post body"
+          aria-label={t('reddit.postBody')}
           onInput={(event) => setField('reddit_body', (event.target as HTMLDivElement).innerHTML)}
           style="display:block;width:100%;min-height:150px;padding:0;outline:none;font-family:inherit;font-size:15px;line-height:1.6;color:#e5ebee;white-space:pre-wrap;word-break:break-word"
         />
         {!bodyText(html) ? (
           <span style={`position:absolute;left:0;top:0;pointer-events:none;font-size:16px;line-height:1.5;color:${MUTED}`}>
             {optional ? (
-              'Body text (optional)'
+              t('reddit.bodyOptional')
             ) : (
               <>
-                Body text<span style={`color:${DANGER}`}>*</span>
+                {t('reddit.bodyRequired')}
+                <span style={`color:${DANGER}`}>*</span>
               </>
             )}
           </span>
@@ -493,8 +499,8 @@ export default function RedditComposer({ project }: Props) {
             setLinkPanel(true);
           }}
           disabled={linkOff}
-          title={linkOff ? 'A post carries either a link or media, not both' : 'Add link'}
-          aria-label="Add link"
+          title={t(linkOff ? 'reddit.linkOrMedia' : 'reddit.addLink')}
+          aria-label={t('reddit.addLink')}
           style={`${roundBtn};cursor:${linkOff ? 'default' : 'pointer'};opacity:${linkOff ? 0.35 : 1}`}
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -509,8 +515,8 @@ export default function RedditComposer({ project }: Props) {
           class="hov-dark-ink"
           onClick={() => imageInput.current?.click()}
           disabled={locked}
-          title={locked ? 'A post carries either a link or media, not both' : 'Add image'}
-          aria-label="Add image"
+          title={t(locked ? 'reddit.linkOrMedia' : 'reddit.addImage')}
+          aria-label={t('reddit.addImage')}
           style={`${roundBtn};cursor:${locked ? 'default' : 'pointer'};opacity:${locked ? 0.35 : 1}`}
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -525,8 +531,8 @@ export default function RedditComposer({ project }: Props) {
           class="hov-dark-ink"
           onClick={() => videoInput.current?.click()}
           disabled={videoOff}
-          title={videoOff ? 'A video stands on its own' : 'Add video'}
-          aria-label="Add video"
+          title={t(videoOff ? 'reddit.videoAlone' : 'reddit.addVideo')}
+          aria-label={t('reddit.addVideo')}
           style={`${roundBtn};cursor:${videoOff ? 'default' : 'pointer'};opacity:${videoOff ? 0.35 : 1}`}
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -537,19 +543,19 @@ export default function RedditComposer({ project }: Props) {
 
         <span style="width:1px;height:22px;background:rgba(255,255,255,0.14);margin:0 8px" />
 
-        <button class="hov-dark-ink" onClick={() => wrap('**', '**')} title="Bold" style={`${roundBtn};font-family:inherit;font-size:16px;font-weight:700;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('**', '**')} title={t('reddit.bold')} style={`${roundBtn};font-family:inherit;font-size:16px;font-weight:700;cursor:pointer`}>
           B
         </button>
-        <button class="hov-dark-ink" onClick={() => wrap('*', '*')} title="Italic" style={`${roundBtn};font-family:var(--font-serif);font-size:17px;font-style:italic;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('*', '*')} title={t('reddit.italic')} style={`${roundBtn};font-family:var(--font-serif);font-size:17px;font-style:italic;cursor:pointer`}>
           i
         </button>
-        <button class="hov-dark-ink" onClick={() => wrap('~~', '~~')} title="Strikethrough" style={`${roundBtn};font-family:inherit;font-size:15px;text-decoration:line-through;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('~~', '~~')} title={t('reddit.strike')} style={`${roundBtn};font-family:inherit;font-size:15px;text-decoration:line-through;cursor:pointer`}>
           S
         </button>
         <button
           class="hov-dark-ink"
           onClick={() => wrap('^(', ')')}
-          title="Superscript"
+          title={t('reddit.superscript')}
           style={`${roundBtn};font-family:inherit;font-size:15px;cursor:pointer`}
         >
           X²
@@ -557,7 +563,7 @@ export default function RedditComposer({ project }: Props) {
         <button
           class="hov-dark-ink"
           onClick={() => wrap('## ', '')}
-          title="Heading"
+          title={t('reddit.heading')}
           style={`${roundBtn};display:flex;align-items:baseline;justify-content:center;font-family:inherit;cursor:pointer`}
         >
           <span style="font-size:12px">t</span>
@@ -570,8 +576,8 @@ export default function RedditComposer({ project }: Props) {
 
           class="hov-dark-ink"
           onClick={() => setInlineLink({ text: '', url: '' })}
-          title="Insert link in text"
-          aria-label="Insert link in text"
+          title={t('reddit.insertLink')}
+          aria-label={t('reddit.insertLink')}
           style={`${roundBtn};cursor:pointer`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -581,7 +587,7 @@ export default function RedditComposer({ project }: Props) {
           </svg>
         </button>
 
-        <button class="hov-dark-ink" onClick={() => wrap('- ', '')} title="Bulleted list" aria-label="Bulleted list" style={`${roundBtn};cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('- ', '')} title={t('reddit.bulleted')} aria-label={t('reddit.bulleted')} style={`${roundBtn};cursor:pointer`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
             <path d="M9 7h11M9 12h11M9 17h11" />
             <circle cx="4.6" cy="7" r="1.2" fill="currentColor" stroke="none" />
@@ -590,7 +596,7 @@ export default function RedditComposer({ project }: Props) {
           </svg>
         </button>
 
-        <button class="hov-dark-ink" onClick={() => wrap('1. ', '')} title="Numbered list" aria-label="Numbered list" style={`${roundBtn};cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('1. ', '')} title={t('reddit.numbered')} aria-label={t('reddit.numbered')} style={`${roundBtn};cursor:pointer`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
             <path d="M9 7h11M9 12h11M9 17h11" />
             <path d="M4 5.6 5.2 5v3.4M3.6 11.2h1.8L3.6 13.6h1.9M3.6 15.6h1.8v1.4H3.8v1.4h1.6" />
@@ -605,8 +611,8 @@ export default function RedditComposer({ project }: Props) {
               '<span style="background:#4e5558;color:#e5ebee;border-radius:2px;padding:2px 6px">{{TEXT}}</span>',
             )
           }
-          title="Spoiler"
-          aria-label="Spoiler"
+          title={t('reddit.spoiler')}
+          aria-label={t('reddit.spoiler')}
           style={`${roundBtn};cursor:pointer`}
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -623,7 +629,7 @@ export default function RedditComposer({ project }: Props) {
               '<div style="border-left:3px solid rgba(255,255,255,0.35);padding:2px 0 2px 16px;margin:10px 0">{{TEXT}}</div>',
             )
           }
-          title="Quote"
+          title={t('reddit.quote')}
           style={`${roundBtn};font-family:inherit;font-size:15px;font-weight:600;cursor:pointer`}
         >
           66
@@ -637,7 +643,7 @@ export default function RedditComposer({ project }: Props) {
               '<code style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:3px;padding:1px 5px">{{TEXT}}</code>',
             )
           }
-          title="Inline code"
+          title={t('reddit.inlineCode')}
           style={`${roundBtn};font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;cursor:pointer`}
         >
           &lt;/&gt;
@@ -651,8 +657,8 @@ export default function RedditComposer({ project }: Props) {
               '<div style="border:1px solid rgba(255,255,255,0.22);border-radius:4px;padding:11px 14px;margin:10px 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px">{{TEXT}}</div>',
             )
           }
-          title="Code block"
-          aria-label="Code block"
+          title={t('reddit.codeBlock')}
+          aria-label={t('reddit.codeBlock')}
           style={`${roundBtn};cursor:pointer`}
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -674,7 +680,7 @@ export default function RedditComposer({ project }: Props) {
             style="width:100%;max-width:560px;max-height:86vh;overflow:auto;background:#0e1113;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px 26px 26px;font-family:-apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;color:#e5ebee;line-height:1.3"
           >
             <div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
-              <span style="font-size:21px;font-weight:700">Add flair and tags</span>
+              <span style="font-size:21px;font-weight:700">{t('reddit.addFlair')}</span>
               <button
                 onClick={() => setFlairOpen(false)}
                 class="hov-dark-strong"
@@ -688,28 +694,28 @@ export default function RedditComposer({ project }: Props) {
               </button>
             </div>
 
-            <div style={`font-size:15px;color:${MUTED};margin-top:22px`}>Flair</div>
+            <div style={`font-size:15px;color:${MUTED};margin-top:22px`}>{t('reddit.flair')}</div>
             <input
               value={flairQuery}
               onInput={(event) => setFlairQuery((event.target as HTMLInputElement).value)}
-              placeholder="Search flair"
+              placeholder={t('reddit.searchFlair')}
               style="width:100%;height:42px;margin-top:12px;padding:0 16px;border:1px solid rgba(255,255,255,0.16);border-radius:999px;background:rgba(255,255,255,0.05);color:#e5ebee;font-family:inherit;font-size:14px;outline:none"
             />
 
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">
               {shownFlairs.map((entry) => {
-                const on = flairDraft === entry || (entry === 'No flair' && !flairDraft);
+                const on = flairDraft === entry || (entry === NO_FLAIR && !flairDraft);
                 return (
                   <button
                     key={entry}
-                    onClick={() => setFlairDraft(entry === 'No flair' ? '' : entry)}
+                    onClick={() => setFlairDraft(entry)}
                     style={`display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;border:1px solid ${
                       on ? '#e5ebee' : 'rgba(255,255,255,0.22)'
                     };background:${on ? '#dde3e6' : 'transparent'};color:${
                       on ? '#0b1416' : '#e5ebee'
                     };font-family:inherit;font-size:13px;font-weight:600;cursor:pointer`}
                   >
-                    {entry}
+                    {flairLabel(entry)}
                   </button>
                 );
               })}
@@ -720,11 +726,11 @@ export default function RedditComposer({ project }: Props) {
                 onClick={() => setShowAllFlairs((all) => !all)}
                 style="margin-top:12px;padding:6px 4px;border:0;background:transparent;color:#e5ebee;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer"
               >
-                {showAllFlairs ? 'Show fewer' : 'Show all'}
+                {t(showAllFlairs ? 'reddit.showFewer' : 'reddit.showAll')}
               </button>
             ) : null}
 
-            <div style={`font-size:15px;color:${MUTED};margin-top:26px`}>Tags</div>
+            <div style={`font-size:15px;color:${MUTED};margin-top:26px`}>{t('reddit.tags')}</div>
 
             <div style="display:flex;align-items:center;gap:16px;margin-top:16px">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e5ebee" stroke-width="1.3" style="flex:none">
@@ -734,12 +740,12 @@ export default function RedditComposer({ project }: Props) {
                 </text>
               </svg>
               <div style="flex:1;min-width:0">
-                <div style="font-size:17px;font-weight:600">Not Safe For Work (NSFW)</div>
-                <div style={`font-size:13px;color:${MUTED};margin-top:3px`}>Contains mature or adult content</div>
+                <div style="font-size:17px;font-weight:600">{t('reddit.nsfwFull')}</div>
+                <div style={`font-size:13px;color:${MUTED};margin-top:3px`}>{t('reddit.nsfwNote')}</div>
               </div>
               <button
                 onClick={() => setNsfwDraft((on) => !on)}
-                title="Toggle NSFW"
+                title={t('reddit.toggleNsfw')}
                 aria-pressed={nsfwDraft}
                 style="flex:none;padding:0;border:0;background:transparent;cursor:pointer"
               >
@@ -761,7 +767,7 @@ export default function RedditComposer({ project }: Props) {
                 class="hov-lift-dark"
                 style="height:44px;padding:0 26px;border:0;border-radius:999px;background:rgba(255,255,255,0.1);color:#e5ebee;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -772,7 +778,7 @@ export default function RedditComposer({ project }: Props) {
                 class="hov-lift-light"
                 style="height:44px;padding:0 32px;border:0;border-radius:999px;background:#e5ebee;color:#0b1416;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer"
               >
-                Add
+                {t('common.add')}
               </button>
             </div>
           </div>
@@ -789,7 +795,7 @@ export default function RedditComposer({ project }: Props) {
             style="width:100%;max-width:500px;background:#0e1113;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px 26px 26px;font-family:-apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;color:#e5ebee;line-height:1.3"
           >
             <div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
-              <span style="font-size:21px;font-weight:700">Insert link</span>
+              <span style="font-size:21px;font-weight:700">{t('reddit.insertLinkTitle')}</span>
               <button
                 onClick={() => setInlineLink(null)}
                 class="hov-dark-strong"
@@ -803,18 +809,18 @@ export default function RedditComposer({ project }: Props) {
               </button>
             </div>
 
-            <div style={`font-size:13px;color:${MUTED};margin-top:20px`}>Text</div>
+            <div style={`font-size:13px;color:${MUTED};margin-top:20px`}>{t('reddit.linkText')}</div>
             <input
               value={inlineLink.text}
               onInput={(event) =>
                 setInlineLink({ ...inlineLink, text: (event.target as HTMLInputElement).value })
               }
-              placeholder="What the reader sees"
+              placeholder={t('reddit.linkTextPlaceholder')}
               style="width:100%;height:42px;margin-top:6px;padding:0 14px;border:1px solid rgba(255,255,255,0.16);border-radius:10px;background:rgba(255,255,255,0.05);color:#e5ebee;font-family:inherit;font-size:15px;outline:none"
             />
 
             <div style={`font-size:13px;color:${MUTED};margin-top:16px`}>
-              URL <span style={`color:${DANGER}`}>*</span>
+              {t('reddit.url')} <span style={`color:${DANGER}`}>*</span>
             </div>
             <input
               value={inlineLink.url}
@@ -843,7 +849,7 @@ export default function RedditComposer({ project }: Props) {
                 class="hov-lift-dark"
                 style="height:44px;padding:0 26px;border:0;border-radius:999px;background:rgba(255,255,255,0.1);color:#e5ebee;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -858,7 +864,7 @@ export default function RedditComposer({ project }: Props) {
                   inlineLink.url.trim() ? 'pointer' : 'default'
                 };opacity:${inlineLink.url.trim() ? 1 : 0.5}`}
               >
-                Save
+                {t('common.save')}
               </button>
             </div>
           </div>

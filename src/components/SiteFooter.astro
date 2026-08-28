@@ -1,35 +1,40 @@
 ---
+import { translator, to, type Lang } from '~/i18n';
+
 interface Props {
   /** The legal shell keeps a narrower measure than the app shell. */
   width?: number;
+  lang: Lang;
 }
 
-const { width = 1180 } = Astro.props;
+const { width = 1180, lang } = Astro.props;
+const t = translator(lang);
+const path = (route: string) => to(route, lang);
 ---
 
 <div class="contact-strip">
   <div class="contact-strip-inner" style={`max-width:${width}px`}>
     <p style="margin:0;font-family:var(--font-serif);font-size:15px;font-weight:500;letter-spacing:0.005em">
-      A question, an idea, or just a hello. All of it is welcome.
+      {t('footer.invite')}
     </p>
     <a
       class="btn btn-primary"
-      href="/contact"
+      href={path('/contact')}
       style="font-size:12px;padding:6px 14px;min-height:0;white-space:nowrap"
     >
-      Contact Me
+      {t('footer.contactMe')}
     </a>
   </div>
 </div>
 
 <footer class="site-footer">
   <div class="site-footer-inner" style={`max-width:${width}px`}>
-    <span style="font-variant-numeric:tabular-nums">&copy; 2026 Post Manager</span>
+    <span style="font-variant-numeric:tabular-nums">{t('footer.copyright')}</span>
     <div class="site-footer-links">
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Use</a>
-      <a href="/cookies">Cookies</a>
-      <a href="/contact">Contact</a>
+      <a href={path('/privacy')}>{t('legal.privacy')}</a>
+      <a href={path('/terms')}>{t('legal.terms')}</a>
+      <a href={path('/cookies')}>{t('legal.cookies')}</a>
+      <a href={path('/contact')}>{t('legal.contact')}</a>
     </div>
   </div>
 </footer>

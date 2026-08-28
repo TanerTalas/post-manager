@@ -2,6 +2,7 @@ import type { Platform } from '~/data/platforms';
 import type { Project } from '~/lib/types';
 import { setAnchor } from '~/lib/anchors';
 import { toggleRow } from '~/lib/store';
+import type { Lang } from '~/i18n';
 import RedditComposer from '~/components/composers/RedditComposer';
 import LinkedInComposer from '~/components/composers/LinkedInComposer';
 import InstagramComposer from '~/components/composers/InstagramComposer';
@@ -11,6 +12,7 @@ import ThreadsComposer from '~/components/composers/ThreadsComposer';
 interface Props {
   platform: Platform;
   project: Project;
+  lang: Lang;
 }
 
 const COMPOSERS = {
@@ -25,7 +27,7 @@ const COMPOSERS = {
  * One collapsible band per active platform. The band header stays in the site's
  * own visual language, the composer inside it wears the platform's.
  */
-export function PlatformRow({ platform, project }: Props) {
+export function PlatformRow({ platform, project, lang }: Props) {
   const open = project.open[platform.id] === true;
   const Composer = COMPOSERS[platform.id];
 
@@ -65,7 +67,7 @@ export function PlatformRow({ platform, project }: Props) {
         };transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1)`}
       >
         <div style="overflow:hidden">
-          <Composer project={project} />
+          <Composer project={project} lang={lang} />
         </div>
       </div>
     </div>

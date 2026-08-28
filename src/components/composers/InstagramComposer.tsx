@@ -3,9 +3,11 @@ import { LIMITS } from '~/data/platforms';
 import { addMedia, removeMedia, setMedia, useMedia, type MediaItem } from '~/lib/media';
 import { readField, readFlag, setField } from '~/lib/store';
 import type { Project } from '~/lib/types';
+import { translator, type Lang } from '~/i18n';
 
 interface Props {
   project: Project;
+  lang: Lang;
 }
 
 const SANS = "-apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif";
@@ -72,7 +74,8 @@ function Section({ title, open, onToggle, children, last }: SectionProps) {
   );
 }
 
-export default function InstagramComposer({ project }: Props) {
+export default function InstagramComposer({ project, lang }: Props) {
+  const t = translator(lang);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [tab, setTab] = useState<'media' | 'text'>('media');
   const [selected, setSelected] = useState(0);
@@ -95,8 +98,8 @@ export default function InstagramComposer({ project }: Props) {
         <button
           onClick={() => setSelected(index - 1)}
           class="hov-dark-strong"
-          title="Previous media"
-          aria-label="Previous media"
+          title={t('instagram.previous')}
+          aria-label={t('instagram.previous')}
           style="position:absolute;top:50%;left:10px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:rgba(26,26,26,0.8);color:#fff;cursor:pointer"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -109,8 +112,8 @@ export default function InstagramComposer({ project }: Props) {
         <button
           onClick={() => setSelected(index + 1)}
           class="hov-dark-strong"
-          title="Next media"
-          aria-label="Next media"
+          title={t('instagram.nextMedia')}
+          aria-label={t('instagram.nextMedia')}
           style="position:absolute;top:50%;right:10px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:rgba(26,26,26,0.8);color:#fff;cursor:pointer"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -154,10 +157,10 @@ export default function InstagramComposer({ project }: Props) {
 
       <div style="display:flex;gap:8px;margin:0 0 14px">
         <button class="hov-light" onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
-          Media
+          {t('instagram.media')}
         </button>
         <button class="hov-light" onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
-          Text
+          {t('instagram.text')}
         </button>
       </div>
 
@@ -168,7 +171,7 @@ export default function InstagramComposer({ project }: Props) {
           {media.length === 0 ? (
             <>
               <div style="display:flex;align-items:center;justify-content:center;padding:15px 16px;border-bottom:1px solid #dbdbdb;font-size:16px;font-weight:600">
-                Create new post
+                {t('instagram.createPost')}
               </div>
               <div style="display:grid;place-items:center;min-height:470px;padding:40px 24px">
                 <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
@@ -179,13 +182,13 @@ export default function InstagramComposer({ project }: Props) {
                     <rect x="38" y="26" width="46" height="42" rx="6" fill="#fff" />
                     <path d="M56 38.5l14 8-14 8z" stroke-linecap="round" />
                   </svg>
-                  <div style="font-size:20px;text-align:center">Drag photos and videos here</div>
+                  <div style="font-size:20px;text-align:center">{t('instagram.dragHere')}</div>
                   <button
                     onClick={() => fileInput.current?.click()}
                     class="hov-instagram"
                     style={`border:0;border-radius:8px;padding:9px 18px;background:${BLUE};color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer`}
                   >
-                    Select from computer
+                    {t('instagram.selectFile')}
                   </button>
                 </div>
               </div>
@@ -200,20 +203,20 @@ export default function InstagramComposer({ project }: Props) {
                     setSelected(0);
                   }}
                   class="hov-light"
-                  title="Back"
-                  aria-label="Discard media"
+                  title={t('common.back')}
+                  aria-label={t('instagram.discard')}
                   style="justify-self:start;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#000;cursor:pointer"
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 12H4M10 6l-6 6 6 6" />
                   </svg>
                 </button>
-                <span style="font-size:16px;font-weight:600">Crop</span>
+                <span style="font-size:16px;font-weight:600">{t('instagram.crop')}</span>
                 <button
                   onClick={() => setTab('text')}
                   style={`justify-self:end;border:0;background:transparent;padding:2px 0;color:${BLUE};font-family:inherit;font-size:14px;font-weight:600;cursor:pointer`}
                 >
-                  Next
+                  {t('instagram.next')}
                 </button>
               </div>
 
@@ -231,8 +234,8 @@ export default function InstagramComposer({ project }: Props) {
                       setSelected((current) => Math.max(0, current - 1));
                     }}
                     class="hov-dark-strong"
-                    title="Remove"
-                    aria-label="Remove media"
+                    title={t('common.remove')}
+                    aria-label={t('instagram.removeMedia')}
                     style="display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#fff;cursor:pointer"
                   >
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -245,7 +248,7 @@ export default function InstagramComposer({ project }: Props) {
                       <button
                         key={item.id}
                         onClick={() => setSelected(position)}
-                        aria-label={`Select ${item.name}`}
+                        aria-label={item.name}
                         style={`flex:none;width:118px;height:118px;padding:0;border:${
                           position === index ? '2px solid #fff' : '1px solid rgba(255,255,255,0.4)'
                         };border-radius:4px;background-color:#111;background-image:url("${item.url}");background-size:cover;background-position:center;cursor:pointer`}
@@ -256,8 +259,8 @@ export default function InstagramComposer({ project }: Props) {
                   <button
                     onClick={() => fileInput.current?.click()}
                     class="hov-dark-strong"
-                    title="Add media"
-                    aria-label="Add media"
+                    title={t('instagram.addMedia')}
+                    aria-label={t('instagram.addMedia')}
                     style="flex:none;display:grid;place-items:center;width:56px;height:56px;padding:0;border:1px solid rgba(255,255,255,0.85);border-radius:50%;background:rgba(0,0,0,0.35);color:#fff;cursor:pointer"
                   >
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -277,16 +280,18 @@ export default function InstagramComposer({ project }: Props) {
             <button
               onClick={() => setTab('media')}
               class="hov-light"
-              title="Back"
-              aria-label="Back to media"
+              title={t('common.back')}
+              aria-label={t('instagram.backToMedia')}
               style="justify-self:start;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#000;cursor:pointer"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 12H4M10 6l-6 6 6 6" />
               </svg>
             </button>
-            <span style="font-size:16px;font-weight:600">Create new post</span>
-            <span style={`justify-self:end;padding:2px 0;color:${BLUE};font-size:14px;font-weight:600`}>Share</span>
+            <span style="font-size:16px;font-weight:600">{t('instagram.createPost')}</span>
+            <span style={`justify-self:end;padding:2px 0;color:${BLUE};font-size:14px;font-weight:600`}>
+              {t('instagram.share')}
+            </span>
           </div>
 
           <div class="ig-split">
@@ -300,11 +305,11 @@ export default function InstagramComposer({ project }: Props) {
                   onClick={() => setTab('media')}
                   style="position:absolute;inset:0;display:grid;place-items:center;border:0;background:transparent;color:rgba(255,255,255,0.75);font-family:inherit;font-size:14px;cursor:pointer"
                 >
-                  Add photos and videos first
+                  {t('instagram.addFirst')}
                 </button>
               ) : (
                 <div style="position:absolute;top:22px;left:50%;transform:translateX(-50%);padding:9px 14px;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;white-space:nowrap">
-                  Click photo to tag people
+                  {t('instagram.tagPeople')}
                 </div>
               )}
 
@@ -322,8 +327,8 @@ export default function InstagramComposer({ project }: Props) {
               <textarea
                 value={caption}
                 onInput={(event) => setField('instagram_caption', (event.target as HTMLTextAreaElement).value)}
-                placeholder="Write a caption..."
-                aria-label="Caption"
+                placeholder={t('instagram.captionPlaceholder')}
+                aria-label={t('instagram.caption')}
                 style="width:100%;min-height:170px;padding:2px 16px 0;border:0;outline:none;resize:none;background:transparent;font-family:inherit;font-size:15px;line-height:1.5;color:#000"
               />
 
@@ -352,37 +357,35 @@ export default function InstagramComposer({ project }: Props) {
                     <path d="M20 11.5v6a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-7" />
                     <path d="m17.5 3.5.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="#000" />
                   </svg>
-                  <span style="flex:1;font-size:15px">Add AI label</span>
-                  <Toggle on={flag('instagram_ai')} onToggle={() => flip('instagram_ai')} label="Add AI label" />
+                  <span style="flex:1;font-size:15px">{t('instagram.aiLabel')}</span>
+                  <Toggle on={flag('instagram_ai')} onToggle={() => flip('instagram_ai')} label={t('instagram.aiLabel')} />
                 </div>
                 <div style="margin-top:8px;font-size:12px;line-height:1.5;color:#737373">
-                  We require you to label certain realistic AI generated content.{' '}
-                  <span style={`color:${BLUE}`}>Learn more</span>
+                  {t('instagram.aiNote')} <span style={`color:${BLUE}`}>{t('instagram.learnMore')}</span>
                 </div>
               </div>
 
-              <Section title="Share to:" open={shareOpen} onToggle={() => setShareOpen((open) => !open)}>
+              <Section title={t('instagram.shareTo')} open={shareOpen} onToggle={() => setShareOpen((open) => !open)}>
                 <div style="display:flex;align-items:center;gap:12px;padding:2px 16px 16px">
                   <span style="flex:none;position:relative;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#efefef;color:rgba(0,0,0,0.6);font-size:11px;font-weight:600">
                     FD
                   </span>
                   <div style="flex:1;min-width:0">
                     <div style="font-size:14px;font-weight:600">fenni.dev</div>
-                    <div style="font-size:12px;color:#737373">Threads &middot; Public</div>
+                    <div style="font-size:12px;color:#737373">{t('instagram.threadsPublic')}</div>
                   </div>
                   <Toggle
                     on={flag('instagram_threads_share')}
                     onToggle={() => flip('instagram_threads_share')}
-                    label="Share to Threads"
+                    label={t('instagram.shareThreads')}
                   />
                 </div>
               </Section>
 
-              <Section title="Accessibility" open={accessOpen} onToggle={() => setAccessOpen((open) => !open)}>
+              <Section title={t('instagram.accessibility')} open={accessOpen} onToggle={() => setAccessOpen((open) => !open)}>
                 <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:12px">
                   <div style="font-size:12px;line-height:1.5;color:#737373">
-                    Alt text describes your photos for people with visual impairments. Alt text is
-                    created automatically for your photos, or you can write your own.
+                    {t('instagram.altNote')}
                   </div>
                   {media.map((item) => (
                     <div key={item.id} style="display:flex;align-items:center;gap:12px">
@@ -394,20 +397,20 @@ export default function InstagramComposer({ project }: Props) {
                         onInput={(event) =>
                           setAlts({ ...alts, [item.id]: (event.target as HTMLInputElement).value })
                         }
-                        placeholder="Write alt text..."
-                        aria-label={`Alt text for ${item.name}`}
+                        placeholder={t('instagram.altPlaceholder')}
+                        aria-label={t('instagram.altFor', { name: item.name })}
                         style="flex:1;min-width:0;padding:12px 14px;border:1px solid #dbdbdb;border-radius:4px;outline:none;background:transparent;font-family:inherit;font-size:14px;color:#000"
                       />
                     </div>
                   ))}
                   {media.length === 0 ? (
-                    <div style="font-size:13px;color:#a8a8a8">No media added yet.</div>
+                    <div style="font-size:13px;color:#a8a8a8">{t('instagram.noMediaYet')}</div>
                   ) : null}
                 </div>
               </Section>
 
               <Section
-                title="Advanced settings"
+                title={t('instagram.advanced')}
                 open={advancedOpen}
                 onToggle={() => setAdvancedOpen((open) => !open)}
                 last
@@ -416,49 +419,48 @@ export default function InstagramComposer({ project }: Props) {
                   <div>
                     <div style="display:flex;align-items:flex-start;gap:12px">
                       <span style="flex:1;font-size:15px;line-height:1.4">
-                        Hide like and view counts on this post
+                        {t('instagram.hideCounts')}
                       </span>
                       <Toggle
                         on={flag('instagram_hide_counts')}
                         onToggle={() => flip('instagram_hide_counts')}
-                        label="Hide like and view counts"
+                        label={t('instagram.hideCounts')}
                       />
                     </div>
                     <div style="margin-top:8px;font-size:12px;line-height:1.5;color:#737373">
-                      Only you will see the total number of likes and views on this post. You can
-                      change this later from the menu at the top of the post.{' '}
-                      <span style={`color:${BLUE}`}>Learn more</span>
+                      {t('instagram.hideCountsNote')}{' '}
+                      <span style={`color:${BLUE}`}>{t('instagram.learnMore')}</span>
                     </div>
                   </div>
 
                   <div>
                     <div style="display:flex;align-items:flex-start;gap:12px">
-                      <span style="flex:1;font-size:15px;line-height:1.4">Turn off commenting</span>
+                      <span style="flex:1;font-size:15px;line-height:1.4">{t('instagram.noComments')}</span>
                       <Toggle
                         on={flag('instagram_no_comments')}
                         onToggle={() => flip('instagram_no_comments')}
-                        label="Turn off commenting"
+                        label={t('instagram.noComments')}
                       />
                     </div>
                     <div style="margin-top:8px;font-size:12px;line-height:1.5;color:#737373">
-                      You can change this later from the menu at the top of your post.
+                      {t('instagram.noCommentsNote')}
                     </div>
                   </div>
 
                   <div>
                     <div style="display:flex;align-items:flex-start;gap:12px">
                       <span style="flex:1;font-size:15px;line-height:1.4">
-                        Share to Threads automatically
+                        {t('instagram.autoThreads')}
                       </span>
                       <Toggle
                         on={flag('instagram_auto_threads')}
                         onToggle={() => flip('instagram_auto_threads')}
-                        label="Share to Threads automatically"
+                        label={t('instagram.autoThreads')}
                       />
                     </div>
                     <div style="margin-top:8px;font-size:12px;line-height:1.5;color:#737373">
-                      Always share your posts on Threads. You can change your target audience in
-                      Threads settings. <span style={`color:${BLUE}`}>Learn more</span>
+                      {t('instagram.autoThreadsNote')}{' '}
+                      <span style={`color:${BLUE}`}>{t('instagram.learnMore')}</span>
                     </div>
                   </div>
                 </div>

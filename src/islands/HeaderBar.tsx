@@ -3,13 +3,8 @@ import { Icon, paths } from '~/components/Icon';
 import { setAnchor } from '~/lib/anchors';
 import { goTo } from '~/lib/navigate';
 import { useDragScroll, useHasHover } from '~/lib/pointer';
-import {
-  currentStep as getTourStep,
-  endTour,
-  registerTourCommands,
-  stepCompleted,
-  TOUR_PROJECT_NAME,
-} from '~/lib/tour';
+import { currentStep as getTourStep, endTour, registerTourCommands, stepCompleted } from '~/lib/tour';
+import { LANG_LABEL, otherLang, translator, type Lang } from '~/i18n';
 import {
   createProject,
   renameProject,
@@ -24,6 +19,13 @@ const TAB_WIDTH = 168;
 interface Props {
   /** Which route the shell is rendering, so the right tab reads as active. */
   route: 'home' | 'app';
+  lang: Lang;
+  /** This same page in the other language, for the language switch. */
+  altUrl: string;
+  /** Where the home tab points, in the current language. */
+  homeUrl: string;
+  appUrl: string;
+  tourUrl: string;
 }
 
 interface Naming {
@@ -31,7 +33,8 @@ interface Naming {
   value: string;
 }
 
-export default function HeaderBar({ route }: Props) {
+export default function HeaderBar({ route, lang, altUrl, homeUrl, appUrl, tourUrl }: Props) {
+  const t = translator(lang);
   const state = useStore();
   const ready = useHydrated();
   const [hover, setHover] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export default function HeaderBar({ route }: Props) {
 
   const commitNaming = () => {
     if (!naming) return;
-    const name = naming.value.trim() || 'Untitled project';
+    const name = naming.value.trim() || t('naming.untitled');
 
     if (naming.target) {
       renameProject(naming.target, name);
@@ -85,7 +88,7 @@ export default function HeaderBar({ route }: Props) {
     createProject(name);
     setNaming(null);
     stepCompleted('naming');
-    if (route !== 'app') goTo('/app');
+    if (route !== 'app') goTo(appUrl);
   };
 
   const cancelNaming = () => {
@@ -107,7 +110,7 @@ export default function HeaderBar({ route }: Props) {
 
   useEffect(() => {
     registerTourCommands({
-      openNaming: (preset) => openRef.current(null, preset),
+      openNaming: () => openRef.current(null, t('tour.projectName')),
       commitNaming: () => commitRef.current(),
     });
     return () => registerTourCommands(null);
@@ -115,26 +118,26 @@ export default function HeaderBar({ route }: Props) {
 
   const pickTab = (id: string) => {
     if (id === 'home') {
-      if (route !== 'home') goTo('/');
+      if (route !== 'home') goTo(homeUrl);
       return;
     }
     selectProject(id);
-    if (route !== 'app') goTo('/app');
+    if (route !== 'app') goTo(appUrl);
   };
 
   const closeHomeTab = (event: MouseEvent) => {
     event.stopPropagation();
     setState({ homeTab: false });
-    if (route === 'home') goTo('/app');
+    if (route === 'home') goTo(appUrl);
   };
 
   const dim = 'color-mix(in srgb, var(--color-text) 45%, transparent)';
 
   const tabs = [
-    ...(state.homeTab ? [{ id: 'home', label: 'Home', closable: true }] : []),
+    ...(state.homeTab ? [{ id: 'home', label: t('shell.homeTab'), closable: true }] : []),
     ...state.order.map((id) => ({
       id,
-      label: state.projects[id]?.name ?? 'Untitled',
+      label: state.projects[id]?.name ?? t('naming.untitled'),
       closable: false,
     })),
   ];
@@ -147,14 +150,14 @@ export default function HeaderBar({ route }: Props) {
       >
         <div data-shell-chrome style="transition:opacity .26s ease">
           <div style="display:flex;align-items:center;gap:14px;padding:12px 20px 10px;max-width:1180px;margin:0 auto;width:100%">
-            <a href="/" style="display:flex;align-items:flex-end;gap:10px;margin-right:auto;color:inherit">
+            <a href={homeUrl} style="display:flex;align-items:flex-end;gap:10px;margin-right:auto;color:inherit">
               <span style="display:flex;align-items:flex-end;justify-content:center;flex:none;width:34px;height:27px;border:1.5px solid var(--color-accent);border-bottom:0;border-radius:5px 5px 0 0;background:color-mix(in srgb, var(--color-accent) 8%, transparent);padding-bottom:3px">
                 <span style="font-weight:600;font-size:14px;letter-spacing:-0.03em;line-height:1;color:var(--color-accent-700)">
                   pm
                 </span>
               </span>
               <span style="font-weight:600;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;line-height:1;padding-bottom:4px">
-                Post Manager
+                {t('shell.brand')}
               </span>
             </a>
 
@@ -162,8 +165,8 @@ export default function HeaderBar({ route }: Props) {
               class="btn btn-secondary btn-icon"
               ref={(el) => setAnchor('help', el)}
               onClick={() => setInfo((open) => !open)}
-              title="About storage"
-              aria-label="About storage"
+              title={t('shell.aboutStorage')}
+              aria-label={t('shell.aboutStorage')}
               style="border-radius:50%"
             >
               <Icon size={16} width={2}>
@@ -171,17 +174,18 @@ export default function HeaderBar({ route }: Props) {
               </Icon>
             </button>
 
-            <button
+            <a
               class="btn btn-secondary"
-              onClick={() => setState({ lang: state.lang === 'EN' ? 'TR' : 'EN' })}
-              title="Language"
+              href={altUrl}
+              title={t('shell.language')}
+              hreflang={otherLang(lang)}
               style="padding:7px 12px;font-size:12px;letter-spacing:0.1em;font-variant-numeric:tabular-nums"
             >
               <Icon size={15} width={1.5}>
                 {paths.globe}
               </Icon>
-              {state.lang}
-            </button>
+              {LANG_LABEL[otherLang(lang)]}
+            </a>
           </div>
         </div>
 
@@ -190,7 +194,7 @@ export default function HeaderBar({ route }: Props) {
             class="btn btn-ghost btn-icon"
             onClick={() => nudge(-1)}
             disabled={edges.start}
-            aria-label="Scroll tabs left"
+            aria-label={t('shell.scrollTabsLeft')}
             style={`cursor:default;flex:none;margin-top:1px;opacity:${edges.start ? 0.3 : 1}`}
           >
             <Icon>{paths.chevronLeft}</Icon>
@@ -230,8 +234,8 @@ export default function HeaderBar({ route }: Props) {
                   {tab.closable && (!canHover || hover === tab.id) ? (
                     <button
                       onClick={closeHomeTab}
-                      title="Close tab"
-                      aria-label="Close tab"
+                      title={t('shell.closeTab')}
+                      aria-label={t('shell.closeTab')}
                       style="flex:none;display:grid;place-items:center;width:18px;height:18px;border:0;background:transparent;color:inherit;cursor:pointer;padding:0;opacity:0.7"
                     >
                       <Icon size={12} width={2}>
@@ -250,8 +254,8 @@ export default function HeaderBar({ route }: Props) {
                         openNaming(tab.id, tab.label);
                       }}
                       class="hov-site"
-                      title="Rename project"
-                      aria-label="Rename project"
+                      title={t('shell.renameProject')}
+                      aria-label={t('shell.renameProject')}
                       style="position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--color-accent);border-radius:50%;background:var(--color-bg);color:var(--color-accent);cursor:pointer;padding:0"
                     >
                       <Icon size={14}>{paths.pencil}</Icon>
@@ -266,7 +270,7 @@ export default function HeaderBar({ route }: Props) {
             class="btn btn-ghost btn-icon"
             onClick={() => nudge(1)}
             disabled={edges.end}
-            aria-label="Scroll tabs right"
+            aria-label={t('shell.scrollTabsRight')}
             style={`cursor:default;flex:none;margin-top:1px;opacity:${edges.end ? 0.3 : 1}`}
           >
             <Icon>{paths.chevronRight}</Icon>
@@ -278,10 +282,10 @@ export default function HeaderBar({ route }: Props) {
             onClick={() =>
               // During the tour the real button and the tour's own button do
               // the same thing, example name included.
-              openNaming(null, getTourStep()?.anchor === 'plus' ? TOUR_PROJECT_NAME : '')
+              openNaming(null, getTourStep()?.anchor === 'plus' ? t('tour.projectName') : '')
             }
-            title="New project"
-            aria-label="New project"
+            title={t('shell.newProject')}
+            aria-label={t('shell.newProject')}
             style="flex:none;width:34px;height:34px;margin-top:2px"
           >
             <Icon>{paths.plus}</Icon>
@@ -300,12 +304,10 @@ export default function HeaderBar({ route }: Props) {
             style="width:100%;max-width:440px;background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:24px"
           >
             <h3 style="font-family:var(--font-heading);font-weight:600;font-size:23px;margin:0 0 4px">
-              {naming.target ? 'Rename this project' : 'Name your project'}
+              {t(naming.target ? 'naming.renameTitle' : 'naming.newTitle')}
             </h3>
             <p style="font-size:13px;line-height:1.7;margin:0 0 18px;color:color-mix(in srgb, var(--color-text) 60%, transparent);text-wrap:pretty">
-              {naming.target
-                ? 'Only you see this name. Change it as often as you like.'
-                : 'Something you will recognise in a week. It is only a label, so nothing rides on it.'}
+              {t(naming.target ? 'naming.renameNote' : 'naming.newNote')}
             </p>
             <input
               class="input"
@@ -318,15 +320,15 @@ export default function HeaderBar({ route }: Props) {
                 if (event.key === 'Enter') commitNaming();
                 if (event.key === 'Escape') cancelNaming();
               }}
-              placeholder="e.g. Q4 Roadmap Post"
+              placeholder={t('naming.placeholder')}
               style="min-height:42px;font-size:15px"
             />
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
               <button class="btn btn-secondary" onClick={cancelNaming} style="font-size:13px">
-                Cancel
+                {t('common.cancel')}
               </button>
               <button class="btn btn-primary" onClick={commitNaming} style="font-size:13px">
-                {naming.target ? 'Rename' : 'Create project'}
+                {t(naming.target ? 'naming.rename' : 'naming.create')}
               </button>
             </div>
           </div>
@@ -345,31 +347,30 @@ export default function HeaderBar({ route }: Props) {
             style="width:100%;max-width:480px;background:var(--color-bg);border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:26px"
           >
             <h3 style="font-family:var(--font-heading);font-weight:600;font-size:23px;margin:0 0 14px">
-              Where your work lives
+              {t('info.title')}
             </h3>
             <p style="font-size:15px;line-height:1.75;margin:0 0 10px;text-wrap:pretty">
-              Your text stays in this browser and comes back exactly as you left it. Images and video
-              are never saved.
+              {t('info.body1')}
             </p>
             <p style="font-size:15px;line-height:1.75;margin:0;text-wrap:pretty">
-              Clear your browsing data and the projects go with it.
+              {t('info.body2')}
             </p>
             <hr class="hr" style="margin:20px 0" />
             <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
-              <span style="font-size:16px;font-weight:600">Feeling lost?</span>
+              <span style="font-size:16px;font-weight:600">{t('info.lost')}</span>
               <div style="display:flex;gap:10px">
                 <button class="btn btn-secondary" onClick={() => setInfo(false)} style="font-size:13px">
-                  Close
+                  {t('common.close')}
                 </button>
                 <button
                   class="btn btn-primary"
                   onClick={() => {
                     setInfo(false);
-                    goTo('/app?tour=1');
+                    goTo(tourUrl);
                   }}
                   style="font-size:13px"
                 >
-                  Take the tour
+                  {t('info.takeTour')}
                 </button>
               </div>
             </div>

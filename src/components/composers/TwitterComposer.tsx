@@ -3,9 +3,11 @@ import { EMOJIS, LIMITS } from '~/data/platforms';
 import { addChainPost, bucketFor, chainPosts, removeChainPost, setChainPost } from '~/lib/chain';
 import { addMedia, getMedia, removeMedia, useMedia } from '~/lib/media';
 import type { Project } from '~/lib/types';
+import { translator, type Lang } from '~/i18n';
 
 interface Props {
   project: Project;
+  lang: Lang;
 }
 
 const KEYS = { body: 'twitter_body', thread: 'twitter_thread' };
@@ -17,7 +19,8 @@ function ringColour(count: number): string {
   return '#1d9bf0';
 }
 
-export default function TwitterComposer({ project }: Props) {
+export default function TwitterComposer({ project, lang }: Props) {
+  const t = translator(lang);
   const fileInput = useRef<HTMLInputElement | null>(null);
   const [focus, setFocus] = useState(0);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -62,6 +65,7 @@ export default function TwitterComposer({ project }: Props) {
               project={project}
               position={position}
               text={text}
+              lang={lang}
               onFocus={() => setFocus(position)}
               onRemove={() => {
                 removeChainPost(project, KEYS, position);
@@ -76,7 +80,7 @@ export default function TwitterComposer({ project }: Props) {
             <circle cx="12" cy="12" r="9" />
             <path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18" />
           </svg>
-          Everyone can reply
+          {t('twitter.everyoneCanReply')}
         </div>
 
         <div style="position:relative;display:flex;align-items:center;gap:2px;border-top:1px solid #2f3336;padding:8px 0 6px">
@@ -84,8 +88,8 @@ export default function TwitterComposer({ project }: Props) {
             onClick={() => fileInput.current?.click()}
             class="hov-twitter"
             disabled={full}
-            title={full ? 'Four images is the limit for one post' : 'Add images'}
-            aria-label="Add images"
+            title={t(full ? 'twitter.mediaFull' : 'twitter.addImages')}
+            aria-label={t('twitter.addImages')}
             style={`display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:#b1b4b7;opacity:${
               full ? 0.4 : 1
             };cursor:${full ? 'default' : 'pointer'}`}
@@ -100,8 +104,8 @@ export default function TwitterComposer({ project }: Props) {
           <button
             onClick={() => setEmojiOpen((open) => !open)}
             class="hov-twitter"
-            title="Emoji"
-            aria-label="Emoji"
+            title={t('twitter.emoji')}
+            aria-label={t('twitter.emoji')}
             style={`display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:${
               emojiOpen ? '#181818' : 'transparent'
             };color:#b1b4b7;cursor:pointer`}
@@ -141,8 +145,8 @@ export default function TwitterComposer({ project }: Props) {
           <button
             onClick={() => setFocus(addChainPost(project, KEYS))}
             class="hov-twitter-accent"
-            title="Add another post"
-            aria-label="Add another post"
+            title={t('twitter.addPost')}
+            aria-label={t('twitter.addPost')}
             style="display:grid;place-items:center;width:30px;height:30px;margin-right:10px;padding:0;border:1px solid #1d9bf0;border-radius:50%;background:transparent;color:#1d9bf0;cursor:pointer"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
@@ -176,11 +180,13 @@ interface PostProps {
   project: Project;
   position: number;
   text: string;
+  lang: Lang;
   onFocus: () => void;
   onRemove: () => void;
 }
 
-function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
+function ChainPost({ project, position, text, lang, onFocus, onRemove }: PostProps) {
+  const t = translator(lang);
   const media = useMedia(project.id, bucketFor('twitter', position));
 
   return (
@@ -196,8 +202,8 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
               setChainPost(project, { body: 'twitter_body', thread: 'twitter_thread' }, position, (event.target as HTMLTextAreaElement).value)
             }
             onFocus={onFocus}
-            placeholder={position === 0 ? "What's happening?" : 'Add another post'}
-            aria-label={position === 0 ? 'Post text' : `Post ${position + 1} text`}
+            placeholder={t(position === 0 ? 'twitter.placeholder' : 'twitter.morePlaceholder')}
+            aria-label={position === 0 ? t('twitter.postText') : t('twitter.postTextN', { n: position + 1 })}
             rows={2}
             style="flex:1;min-width:0;min-height:54px;resize:none;border:0;outline:none;background:transparent;color:#e7e9ea;font-family:inherit;font-size:19px;line-height:1.45;padding:7px 0 0"
           />
@@ -205,8 +211,8 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
             <button
               onClick={onRemove}
               class="hov-twitter"
-              title="Remove post"
-              aria-label="Remove post"
+              title={t('twitter.removePost')}
+              aria-label={t('twitter.removePost')}
               style="flex:none;display:grid;place-items:center;width:30px;height:30px;margin-top:6px;padding:0;border:0;border-radius:50%;background:transparent;color:#1d9bf0;cursor:pointer"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -225,13 +231,13 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
                   style={`position:relative;flex:1;min-width:0;height:250px;border-radius:16px;overflow:hidden;background-color:#16181c;background-image:url("${item.url}");background-size:cover;background-position:center`}
                 >
                   <span style="position:absolute;top:10px;left:10px;padding:5px 13px;border-radius:999px;background:rgba(0,0,0,0.72);font-size:13px;font-weight:700">
-                    Edit
+                    {t('twitter.edit')}
                   </span>
                   <button
                     onClick={() => removeMedia(project.id, bucketFor('twitter', position), item.id)}
                     class="hov-twitter-scrim"
-                    title="Remove image"
-                    aria-label={`Remove ${item.name}`}
+                    title={t('twitter.removeImage')}
+                    aria-label={`${t('twitter.removeImage')}: ${item.name}`}
                     style="position:absolute;top:9px;right:9px;display:grid;place-items:center;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.72);color:#e7e9ea;cursor:pointer"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { getAnchor, onAnchorChange } from '~/lib/anchors';
 import { activeProject, getState, patchProject, setState } from '~/lib/store';
 import { TOUR, endTour, nextStep, prevStep, startTour, useTourStep } from '~/lib/tour';
+import { translator, type Lang } from '~/i18n';
 
 /** Only used before the card has been laid out once and can be measured. */
 const TIP_FALLBACK_HEIGHT = 236;
@@ -21,7 +22,12 @@ interface Placement {
  * tour can point at controls that live in the header island as easily as at
  * ones in the app screen.
  */
-export default function TourGuide() {
+interface Props {
+  lang: Lang;
+}
+
+export default function TourGuide({ lang }: Props) {
+  const t = translator(lang);
   const step = useTourStep();
   const [place, setPlace] = useState<Placement | null>(null);
   const card = useRef<HTMLDivElement | null>(null);
@@ -150,9 +156,9 @@ export default function TourGuide() {
           </div>
         </div>
         <h4 style="font-family:var(--font-heading);font-weight:600;font-size:19px;margin:8px 0 6px">
-          {current.title}
+          {t(current.title)}
         </h4>
-        <p style="font-size:13px;line-height:1.75;margin:0;text-wrap:pretty">{current.body}</p>
+        <p style="font-size:13px;line-height:1.75;margin:0;text-wrap:pretty">{t(current.body)}</p>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px">
           <button
             class="btn btn-ghost"
@@ -160,10 +166,10 @@ export default function TourGuide() {
             disabled={step <= 1}
             style={`font-size:12px;cursor:default;opacity:${step <= 1 ? 0.3 : 1}`}
           >
-            Back
+            {t('common.back')}
           </button>
           <button class="btn btn-primary" onClick={advance} style="font-size:12px">
-            {step === TOUR.length ? 'Done' : current.anchor === 'plus' ? 'Press it' : 'Next'}
+            {t(step === TOUR.length ? 'tour.done' : current.anchor === 'plus' ? 'tour.pressIt' : 'common.next')}
           </button>
         </div>
       </div>
@@ -173,7 +179,7 @@ export default function TourGuide() {
         onClick={finish}
         style="position:fixed;z-index:92;right:20px;bottom:20px;font-size:13px;white-space:nowrap;background:var(--color-bg)"
       >
-        Skip the tour
+        {t('tour.skip')}
       </button>
     </div>
   );
