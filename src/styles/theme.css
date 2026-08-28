@@ -186,3 +186,17 @@ a:hover {
     opacity: 1;
   }
 }
+
+/* Instagram's composer splits the preview from the settings column. Lives here
+   rather than in the component so the built pages carry no inline style tag,
+   which is what keeps the style policy free of hashes. */
+.ig-split {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+}
+
+@media (max-width: 900px) {
+  .ig-split {
+    grid-template-columns: 1fr;
+  }
+}

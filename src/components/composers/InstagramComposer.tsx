@@ -459,11 +459,6 @@ export default function InstagramComposer({ project }: Props) {
           </div>
         </div>
       )}
-
-      <style>{`
-        .ig-split { display: grid; grid-template-columns: 1fr 340px; }
-        @media (max-width: 900px) { .ig-split { grid-template-columns: 1fr; } }
-      `}</style>
     </div>
   );
 }
