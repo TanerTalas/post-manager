@@ -1,0 +1,12 @@
+---
+import Shell from '~/layouts/Shell.astro';
+import AppScreen from '~/islands/AppScreen';
+---
+
+<Shell
+  title="Post Manager"
+  route="app"
+  description="Draft one idea for Reddit, LinkedIn, Instagram, X and Threads side by side."
+>
+  <AppScreen client:load />
+</Shell>
