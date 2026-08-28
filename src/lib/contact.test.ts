@@ -10,8 +10,8 @@ import {
 } from './contact';
 
 const good = {
-  name: 'Taner',
-  email: 'taner@example.com',
+  name: 'Fenni',
+  email: 'fenni@example.com',
   message: 'A message that is comfortably long enough to send.',
 };
 
@@ -31,11 +31,11 @@ describe('validateContact', () => {
   });
 
   it('rejects an address with no domain', () => {
-    expect(validateContact({ ...good, email: 'taner@' })).toHaveLength(1);
+    expect(validateContact({ ...good, email: 'fenni@' })).toHaveLength(1);
   });
 
   it('accepts a plus addressed mailbox', () => {
-    expect(validateContact({ ...good, email: 'taner+pm@example.co.uk' })).toEqual([]);
+    expect(validateContact({ ...good, email: 'fenni+pm@example.co.uk' })).toEqual([]);
   });
 
   it('rejects a message that is barely there', () => {
@@ -71,8 +71,8 @@ describe('looksAutomated', () => {
 
 describe('singleLine', () => {
   it('strips the line breaks that would forge mail headers', () => {
-    expect(singleLine('Taner\r\nBcc: victim@example.com', 80)).toBe(
-      'Taner Bcc: victim@example.com',
+    expect(singleLine('Fenni\r\nBcc: victim@example.com', 80)).toBe(
+      'Fenni Bcc: victim@example.com',
     );
   });
 

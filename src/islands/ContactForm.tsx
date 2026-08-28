@@ -203,7 +203,7 @@ export default function ContactForm({ siteKey }: Props) {
             disabled={sending}
             aria-invalid={errorFor('name') ? 'true' : undefined}
             onInput={(event) => setName((event.target as HTMLInputElement).value)}
-            placeholder="Elif Yılmaz"
+            placeholder="Fenni"
           />
         </Field>
 
@@ -218,7 +218,7 @@ export default function ContactForm({ siteKey }: Props) {
             disabled={sending}
             aria-invalid={errorFor('email') ? 'true' : undefined}
             onInput={(event) => setEmail((event.target as HTMLInputElement).value)}
-            placeholder="elif@example.com"
+            placeholder="fenni@example.com"
           />
         </Field>
       </div>

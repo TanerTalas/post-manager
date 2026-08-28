@@ -186,7 +186,7 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
   return (
     <div style="display:flex;gap:12px;padding:4px 0">
       <span style="flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#16181c;color:#e7e9ea;font-family:var(--font-heading);font-size:14px">
-        EY
+        FD
       </span>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:flex-start;gap:10px">

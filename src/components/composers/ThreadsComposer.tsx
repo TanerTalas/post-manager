@@ -70,7 +70,7 @@ export default function ThreadsComposer({ project }: Props) {
             style="display:flex;align-items:center;gap:12px;padding:0 0 16px;cursor:pointer"
           >
             <span style="flex:none;display:grid;place-items:center;width:24px;height:24px;margin-left:6px;border-radius:50%;background:#f2f2f2;color:#c4c4c4;font-size:11px;font-weight:600">
-              f
+              FD
             </span>
             <span style="font-size:15px;color:#999">Add to thread</span>
           </div>
@@ -108,7 +108,7 @@ function ChainPost({
     <div style="display:flex;gap:12px">
       <div style="flex:none;display:flex;flex-direction:column;align-items:center;width:36px">
         <span style="flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#ececec;color:#8a8a8a;font-size:14px;font-weight:600">
-          f
+          FD
         </span>
         <span style="flex:1;width:2px;margin:8px 0 2px;border-radius:2px;background:rgba(0,0,0,0.13)" />
       </div>

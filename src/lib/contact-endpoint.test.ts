@@ -9,8 +9,8 @@ const config: Config = {
 };
 
 const good = {
-  name: 'Taner',
-  email: 'taner@example.com',
+  name: 'Fenni',
+  email: 'fenni@example.com',
   message: 'A message that is comfortably long enough to send.',
   token: 'a-solved-challenge',
   elapsed: 9000,

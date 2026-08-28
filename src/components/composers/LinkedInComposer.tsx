@@ -82,11 +82,11 @@ export default function LinkedInComposer({ project }: Props) {
         >
           <div style="position:relative;display:flex;align-items:center;gap:8px;padding:16px 16px 4px">
             <span style="flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#e8e8e8;color:rgba(0,0,0,0.55);font-size:16px;font-weight:600">
-              JD
+              FD
             </span>
             <div style="min-width:0">
               <div style="display:flex;align-items:center;gap:8px">
-                <span style="font-size:17px;font-weight:600;letter-spacing:-0.01em">John Doe</span>
+                <span style="font-size:17px;font-weight:600;letter-spacing:-0.01em">Fenni</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:rgba(0,0,0,0.9)">
                   <path d="M6 9h12l-6 7z" />
                 </svg>
