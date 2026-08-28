@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Icon, paths } from '~/components/Icon';
 import { setAnchor } from '~/lib/anchors';
 import { goTo } from '~/lib/navigate';
+import { registerTourCommands } from '~/lib/tour';
 import {
   createProject,
   renameProject,
@@ -32,6 +33,7 @@ export default function HeaderBar({ route }: Props) {
   const [edges, setEdges] = useState({ start: true, end: true });
   const strip = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ x: number; left: number } | null>(null);
+  const namingRef = useRef<Naming | null>(null);
 
   const measure = useCallback(() => {
     const el = strip.current;
@@ -73,6 +75,21 @@ export default function HeaderBar({ route }: Props) {
       if (route !== 'app') goTo('/app');
     }
   };
+
+  // The tour presses these controls for the reader, so it needs a way in.
+  useEffect(() => {
+    registerTourCommands({
+      openNaming: (preset) => openNaming(null, preset),
+      commitNaming: () => {
+        const name = namingRef.current?.value.trim() || 'Untitled project';
+        createProject(name);
+        setNaming(null);
+      },
+    });
+    return () => registerTourCommands(null);
+  }, []);
+
+  namingRef.current = naming;
 
   const pickTab = (id: string) => {
     if (id === 'home') {

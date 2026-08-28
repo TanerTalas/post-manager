@@ -128,9 +128,11 @@ export function createProject(name: string): string {
     seq: current.seq + 1,
     order: [...current.order, id],
     active: id,
+    // A new project opens with the simplest composer already active, so the
+    // screen is never blank on arrival.
     projects: {
       ...current.projects,
-      [id]: { id, name, selected: [], open: {}, content: {} },
+      [id]: { id, name, selected: ['twitter'], open: {}, content: {} },
     },
   }));
   return id;

@@ -1,6 +1,7 @@
 ---
 import Shell from '~/layouts/Shell.astro';
 import AppScreen from '~/islands/AppScreen';
+import TourGuide from '~/islands/TourGuide';
 ---
 
 <Shell
@@ -9,4 +10,5 @@ import AppScreen from '~/islands/AppScreen';
   description="Draft one idea for Reddit, LinkedIn, Instagram, X and Threads side by side."
 >
   <AppScreen client:load />
+  <TourGuide client:load />
 </Shell>
