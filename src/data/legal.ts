@@ -40,8 +40,12 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
         text: 'Because everything lives in your browser, clearing your browsing data removes every project. There is no copy anywhere else and no way for us to restore one. Your browser settings are the only control you need.',
       },
       {
+        head: 'When you write to me',
+        text: 'The contact page is the one place where something does leave your browser, and only because you pressed send. Your name, your address and your message are passed to a mail service that delivers them to my inbox. Your address is used to reply and nothing else. Your drafts are never part of it.',
+      },
+      {
         head: 'Third parties',
-        text: 'The page loads its typefaces from a font provider and nothing else. No advertising, tracking or embedded social scripts are present.',
+        text: 'The page loads its typefaces from a font provider. The site is served by Cloudflare, which also runs the spam check on the contact form, and contact messages are delivered by a mail service. No advertising, tracking or embedded social scripts are present.',
       },
     ],
   },
@@ -58,7 +62,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
       },
       {
         head: 'Your content is yours',
-        text: 'You keep every right to what you write here. No licence is granted to anyone by using the tool, because nothing is transmitted anywhere.',
+        text: 'You keep every right to what you write here. No licence is granted to anyone by using the tool, because your drafts are never transmitted anywhere. A message you deliberately send from the contact page is the one exception, and it goes only to me.',
       },
       {
         head: 'Availability',
@@ -88,6 +92,10 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
       {
         head: 'Why it is kept',
         text: 'So that reopening the page puts you back exactly where you were: the same tabs, the same project in front of you, the same text in every box. Without it every reload would start from an empty page.',
+      },
+      {
+        head: 'The spam check',
+        text: 'The contact page runs a Cloudflare spam check, which may set a short lived cookie of its own to remember that you already passed it. It is there to tell people from bots, it does not follow you around, and it only appears on that one page.',
       },
       {
         head: 'Removing it',
