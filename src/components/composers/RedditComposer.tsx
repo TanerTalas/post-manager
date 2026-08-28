@@ -27,6 +27,9 @@ function escapeHtml(value: string): string {
 const roundBtn =
   'display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit';
 
+/** Toolbar glyphs sit dimmed until pointed at. */
+const TOOLBAR = 'hov-dark-ink';
+
 export default function RedditComposer({ project }: Props) {
   const body = useRef<HTMLDivElement | null>(null);
   const range = useRef<Range | null>(null);
@@ -181,6 +184,7 @@ export default function RedditComposer({ project }: Props) {
         <div style="position:relative">
           <button
             onClick={() => setSubOpen((open) => !open)}
+            class="hov-dark"
             style="display:flex;align-items:center;gap:9px;height:46px;padding:4px 14px 4px 5px;border:1px solid rgba(255,255,255,0.18);border-radius:999px;background:transparent;color:#e5ebee;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer"
           >
             <span style="display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:50%;background:#f5f1ee">
@@ -204,6 +208,7 @@ export default function RedditComposer({ project }: Props) {
                 {RD_SUBS.map((name) => (
                   <button
                     key={name}
+                    class="hov-dark"
                     onClick={() => {
                       setField('reddit_sub', name);
                       setSubOpen(false);
@@ -265,6 +270,7 @@ export default function RedditComposer({ project }: Props) {
         {!flair && !nsfw ? (
           <button
             onClick={openFlair}
+            class="hov-dark"
             style="display:flex;align-items:center;gap:9px;height:38px;padding:0 17px;border:1px solid rgba(255,255,255,0.24);border-radius:999px;background:transparent;color:#e5ebee;font-family:inherit;font-size:14px;font-weight:600;white-space:nowrap;cursor:pointer"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -290,6 +296,7 @@ export default function RedditComposer({ project }: Props) {
         {flair || nsfw ? (
           <button
             onClick={openFlair}
+            class="hov-dark"
             title="Edit flair and tags"
             aria-label="Edit flair and tags"
             style="display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:1px solid rgba(255,255,255,0.28);border-radius:50%;background:transparent;color:#e5ebee;cursor:pointer"
@@ -311,6 +318,7 @@ export default function RedditComposer({ project }: Props) {
                 setLinkPanel(false);
                 setLinkTouched(false);
               }}
+              class="hov-dark-strong"
               title="Close"
               aria-label="Close"
               style="display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
@@ -365,6 +373,7 @@ export default function RedditComposer({ project }: Props) {
           </span>
           <button
             onClick={() => setLinkMenu((open) => !open)}
+            class="hov-dark-strong"
             title="Link options"
             aria-label="Link options"
             style="display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
@@ -379,6 +388,7 @@ export default function RedditComposer({ project }: Props) {
           {linkMenu ? (
             <div style="position:absolute;right:10px;top:56px;z-index:30;width:180px;padding:6px;background:#181c1f;border:1px solid rgba(255,255,255,0.12);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,0.55);animation:tipIn .16s ease">
               <button
+                class="hov-dark"
                 onClick={() => {
                   setLinkDraft(link);
                   setLinkMenu(false);
@@ -390,6 +400,7 @@ export default function RedditComposer({ project }: Props) {
                 Edit link
               </button>
               <button
+                class="hov-remove"
                 onClick={() => {
                   setField('reddit_link', '');
                   setLinkMenu(false);
@@ -414,6 +425,7 @@ export default function RedditComposer({ project }: Props) {
               />
               <button
                 onClick={() => removeMedia(project.id, 'reddit', item.id)}
+                class="hov-scrim"
                 title="Remove"
                 aria-label={`Remove ${item.name}`}
                 style="position:absolute;top:6px;right:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;cursor:pointer"
@@ -438,6 +450,7 @@ export default function RedditComposer({ project }: Props) {
           </span>
           <button
             onClick={() => removeMedia(project.id, 'reddit', video.id)}
+            class="hov-dark-strong"
             title="Remove video"
             aria-label="Remove video"
             style="display:grid;place-items:center;flex:none;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
@@ -474,6 +487,7 @@ export default function RedditComposer({ project }: Props) {
 
       <div style="display:flex;align-items:center;gap:2px;flex-wrap:wrap;color:#9bb0ba;font-size:15px">
         <button
+          class="hov-dark-ink"
           onClick={() => {
             if (linkOff) return;
             setLinkDraft(link);
@@ -494,6 +508,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() => imageInput.current?.click()}
           disabled={locked}
           title={locked ? 'A post carries either a link or media, not both' : 'Add image'}
@@ -508,6 +524,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() => videoInput.current?.click()}
           disabled={videoOff}
           title={videoOff ? 'A video stands on its own' : 'Add video'}
@@ -522,16 +540,17 @@ export default function RedditComposer({ project }: Props) {
 
         <span style="width:1px;height:22px;background:rgba(255,255,255,0.14);margin:0 8px" />
 
-        <button onClick={() => wrap('**', '**')} title="Bold" style={`${roundBtn};font-family:inherit;font-size:16px;font-weight:700;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('**', '**')} title="Bold" style={`${roundBtn};font-family:inherit;font-size:16px;font-weight:700;cursor:pointer`}>
           B
         </button>
-        <button onClick={() => wrap('*', '*')} title="Italic" style={`${roundBtn};font-family:var(--font-serif);font-size:17px;font-style:italic;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('*', '*')} title="Italic" style={`${roundBtn};font-family:var(--font-serif);font-size:17px;font-style:italic;cursor:pointer`}>
           i
         </button>
-        <button onClick={() => wrap('~~', '~~')} title="Strikethrough" style={`${roundBtn};font-family:inherit;font-size:15px;text-decoration:line-through;cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('~~', '~~')} title="Strikethrough" style={`${roundBtn};font-family:inherit;font-size:15px;text-decoration:line-through;cursor:pointer`}>
           S
         </button>
         <button
+          class="hov-dark-ink"
           onClick={() => wrap('^(', ')')}
           title="Superscript"
           style={`${roundBtn};font-family:inherit;font-size:15px;cursor:pointer`}
@@ -539,6 +558,7 @@ export default function RedditComposer({ project }: Props) {
           X²
         </button>
         <button
+          class="hov-dark-ink"
           onClick={() => wrap('## ', '')}
           title="Heading"
           style={`${roundBtn};display:flex;align-items:baseline;justify-content:center;font-family:inherit;cursor:pointer`}
@@ -550,6 +570,8 @@ export default function RedditComposer({ project }: Props) {
         <span style="width:1px;height:22px;background:rgba(255,255,255,0.14);margin:0 8px" />
 
         <button
+
+          class="hov-dark-ink"
           onClick={() => setInlineLink({ text: '', url: '' })}
           title="Insert link in text"
           aria-label="Insert link in text"
@@ -562,7 +584,7 @@ export default function RedditComposer({ project }: Props) {
           </svg>
         </button>
 
-        <button onClick={() => wrap('- ', '')} title="Bulleted list" aria-label="Bulleted list" style={`${roundBtn};cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('- ', '')} title="Bulleted list" aria-label="Bulleted list" style={`${roundBtn};cursor:pointer`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
             <path d="M9 7h11M9 12h11M9 17h11" />
             <circle cx="4.6" cy="7" r="1.2" fill="currentColor" stroke="none" />
@@ -571,7 +593,7 @@ export default function RedditComposer({ project }: Props) {
           </svg>
         </button>
 
-        <button onClick={() => wrap('1. ', '')} title="Numbered list" aria-label="Numbered list" style={`${roundBtn};cursor:pointer`}>
+        <button class="hov-dark-ink" onClick={() => wrap('1. ', '')} title="Numbered list" aria-label="Numbered list" style={`${roundBtn};cursor:pointer`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
             <path d="M9 7h11M9 12h11M9 17h11" />
             <path d="M4 5.6 5.2 5v3.4M3.6 11.2h1.8L3.6 13.6h1.9M3.6 15.6h1.8v1.4H3.8v1.4h1.6" />
@@ -579,6 +601,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() =>
             insertNode(
               '<span style="background:#4e5558;color:#e5ebee;border-radius:2px;padding:2px 6px">{{TEXT}}</span>',
@@ -595,6 +619,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() =>
             insertNode(
               '<div style="border-left:3px solid rgba(255,255,255,0.35);padding:2px 0 2px 16px;margin:10px 0">{{TEXT}}</div>',
@@ -607,6 +633,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() =>
             insertNode(
               '<code style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:3px;padding:1px 5px">{{TEXT}}</code>',
@@ -619,6 +647,8 @@ export default function RedditComposer({ project }: Props) {
         </button>
 
         <button
+
+          class="hov-dark-ink"
           onClick={() =>
             insertNode(
               '<div style="border:1px solid rgba(255,255,255,0.22);border-radius:4px;padding:11px 14px;margin:10px 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px">{{TEXT}}</div>',
@@ -650,6 +680,7 @@ export default function RedditComposer({ project }: Props) {
               <span style="font-size:21px;font-weight:700">Add flair and tags</span>
               <button
                 onClick={() => setFlairOpen(false)}
+                class="hov-dark-strong"
                 title="Close"
                 aria-label="Close"
                 style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
@@ -730,6 +761,7 @@ export default function RedditComposer({ project }: Props) {
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:30px">
               <button
                 onClick={() => setFlairOpen(false)}
+                class="hov-lift-dark"
                 style="height:44px;padding:0 26px;border:0;border-radius:999px;background:rgba(255,255,255,0.1);color:#e5ebee;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer"
               >
                 Cancel
@@ -740,6 +772,7 @@ export default function RedditComposer({ project }: Props) {
                   setField('reddit_nsfw', nsfwDraft);
                   setFlairOpen(false);
                 }}
+                class="hov-lift-light"
                 style="height:44px;padding:0 32px;border:0;border-radius:999px;background:#e5ebee;color:#0b1416;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer"
               >
                 Add
@@ -762,6 +795,7 @@ export default function RedditComposer({ project }: Props) {
               <span style="font-size:21px;font-weight:700">Insert link</span>
               <button
                 onClick={() => setInlineLink(null)}
+                class="hov-dark-strong"
                 title="Close"
                 aria-label="Close"
                 style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,0.12);color:#e5ebee;cursor:pointer"
@@ -809,6 +843,7 @@ export default function RedditComposer({ project }: Props) {
             <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:26px">
               <button
                 onClick={() => setInlineLink(null)}
+                class="hov-lift-dark"
                 style="height:44px;padding:0 26px;border:0;border-radius:999px;background:rgba(255,255,255,0.1);color:#e5ebee;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer"
               >
                 Cancel

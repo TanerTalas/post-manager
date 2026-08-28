@@ -55,6 +55,7 @@ function Section({ title, open, onToggle, children, last }: SectionProps) {
     <div style={last ? '' : 'border-bottom:1px solid #dbdbdb'}>
       <button
         onClick={onToggle}
+        class="hov-light"
         style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 16px;border:0;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:#000;text-align:left;cursor:pointer"
       >
         <span>{title}</span>
@@ -93,6 +94,7 @@ export default function InstagramComposer({ project }: Props) {
       {media.length > 1 && index > 0 ? (
         <button
           onClick={() => setSelected(index - 1)}
+          class="hov-dark-strong"
           title="Previous media"
           aria-label="Previous media"
           style="position:absolute;top:50%;left:10px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:rgba(26,26,26,0.8);color:#fff;cursor:pointer"
@@ -106,6 +108,7 @@ export default function InstagramComposer({ project }: Props) {
       {media.length > 1 && index < media.length - 1 ? (
         <button
           onClick={() => setSelected(index + 1)}
+          class="hov-dark-strong"
           title="Next media"
           aria-label="Next media"
           style="position:absolute;top:50%;right:10px;transform:translateY(-50%);display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:rgba(26,26,26,0.8);color:#fff;cursor:pointer"
@@ -150,10 +153,10 @@ export default function InstagramComposer({ project }: Props) {
       />
 
       <div style="display:flex;gap:8px;margin:0 0 14px">
-        <button onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
+        <button class="hov-light" onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
           Media
         </button>
-        <button onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
+        <button class="hov-light" onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
           Text
         </button>
       </div>
@@ -179,6 +182,7 @@ export default function InstagramComposer({ project }: Props) {
                   <div style="font-size:20px;text-align:center">Drag photos and videos here</div>
                   <button
                     onClick={() => fileInput.current?.click()}
+                    class="hov-instagram"
                     style={`border:0;border-radius:8px;padding:9px 18px;background:${BLUE};color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer`}
                   >
                     Select from computer
@@ -195,6 +199,7 @@ export default function InstagramComposer({ project }: Props) {
                     setMedia(project.id, 'instagram', []);
                     setSelected(0);
                   }}
+                  class="hov-light"
                   title="Back"
                   aria-label="Discard media"
                   style="justify-self:start;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#000;cursor:pointer"
@@ -225,6 +230,7 @@ export default function InstagramComposer({ project }: Props) {
                       removeMedia(project.id, 'instagram', active.id);
                       setSelected((current) => Math.max(0, current - 1));
                     }}
+                    class="hov-dark-strong"
                     title="Remove"
                     aria-label="Remove media"
                     style="display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#fff;cursor:pointer"
@@ -249,6 +255,7 @@ export default function InstagramComposer({ project }: Props) {
 
                   <button
                     onClick={() => fileInput.current?.click()}
+                    class="hov-dark-strong"
                     title="Add media"
                     aria-label="Add media"
                     style="flex:none;display:grid;place-items:center;width:56px;height:56px;padding:0;border:1px solid rgba(255,255,255,0.85);border-radius:50%;background:rgba(0,0,0,0.35);color:#fff;cursor:pointer"
@@ -269,6 +276,7 @@ export default function InstagramComposer({ project }: Props) {
           <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:13px 16px;border-bottom:1px solid #dbdbdb">
             <button
               onClick={() => setTab('media')}
+              class="hov-light"
               title="Back"
               aria-label="Back to media"
               style="justify-self:start;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#000;cursor:pointer"

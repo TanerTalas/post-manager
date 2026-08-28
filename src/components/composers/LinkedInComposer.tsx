@@ -68,10 +68,10 @@ export default function LinkedInComposer({ project }: Props) {
       />
 
       <div style="display:flex;gap:8px;margin:0 0 14px">
-        <button onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
+        <button class="hov-light" onClick={() => setTab('text')} style={tabStyle(tab === 'text')}>
           Text
         </button>
-        <button onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
+        <button class="hov-light" onClick={() => setTab('media')} style={tabStyle(tab === 'media')}>
           Media
         </button>
       </div>
@@ -114,6 +114,7 @@ export default function LinkedInComposer({ project }: Props) {
                   />
                   <button
                     onClick={() => removeMedia(project.id, 'linkedin', item.id)}
+                    class="hov-scrim"
                     title="Remove"
                     aria-label={`Remove ${item.name}`}
                     style="position:absolute;top:6px;right:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer"
@@ -130,6 +131,7 @@ export default function LinkedInComposer({ project }: Props) {
           <div style="position:relative;padding:10px 8px 2px 16px">
             <button
               onClick={() => setEmojiOpen((open) => !open)}
+              class="hov-light-ink"
               title="Open emoji keyboard"
               aria-label="Open emoji keyboard"
               style={`display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:${
@@ -150,6 +152,7 @@ export default function LinkedInComposer({ project }: Props) {
                   {EMOJIS.map((character) => (
                     <button
                       key={character}
+                      class="hov-light"
                       onClick={() => insertEmoji(character)}
                       style="height:34px;padding:0;border:0;border-radius:6px;background:transparent;font-size:20px;line-height:1;cursor:pointer"
                     >
@@ -164,6 +167,7 @@ export default function LinkedInComposer({ project }: Props) {
           <div style="display:flex;align-items:center;gap:8px;padding:2px 8px 14px">
             <button
               onClick={() => fileInput.current?.click()}
+              class="hov-light-ink"
               title="Add media"
               aria-label="Add media"
               style="display:grid;place-items:center;width:48px;height:48px;padding:0;border:0;border-radius:50%;background:transparent;color:#5f5f5f;cursor:pointer"
@@ -191,6 +195,7 @@ export default function LinkedInComposer({ project }: Props) {
               ) : (
                 <button
                   onClick={() => fileInput.current?.click()}
+                  class="hov-dashed"
                   style="flex:1;min-height:220px;display:grid;place-items:center;gap:10px;border:1px dashed rgba(0,0,0,0.25);border-radius:8px;background:#fff;color:rgba(0,0,0,0.55);font-family:inherit;font-size:14px;cursor:pointer"
                 >
                   Click to add an image
@@ -223,6 +228,7 @@ export default function LinkedInComposer({ project }: Props) {
               <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;color:#5f5f5f">
                 <button
                   onClick={duplicate}
+                  class="hov-light-ink"
                   title="Duplicate"
                   aria-label="Duplicate"
                   style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
@@ -238,6 +244,7 @@ export default function LinkedInComposer({ project }: Props) {
                     removeMedia(project.id, 'linkedin', active.id);
                     setSelected((index) => Math.max(0, index - 1));
                   }}
+                  class="hov-light-ink"
                   title="Delete"
                   aria-label="Delete"
                   style="display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
@@ -248,6 +255,7 @@ export default function LinkedInComposer({ project }: Props) {
                 </button>
                 <button
                   onClick={() => fileInput.current?.click()}
+                  class="hov-light"
                   title="Add"
                   aria-label="Add media"
                   style="display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid rgba(0,0,0,0.4);border-radius:50%;background:transparent;color:rgba(0,0,0,0.75);cursor:pointer"

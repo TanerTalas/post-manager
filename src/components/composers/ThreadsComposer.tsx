@@ -146,6 +146,7 @@ function ChainPost({
           {!first ? (
             <button
               onClick={onRemove}
+              class="hov-light"
               title="Remove this post"
               aria-label="Remove this post"
               style="flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:transparent;color:#000;cursor:pointer"
@@ -182,6 +183,7 @@ function ChainPost({
               >
                 <button
                   onClick={() => removeMedia(project.id, bucketFor('threads', position), item.id)}
+                  class="hov-scrim"
                   title="Remove"
                   aria-label={`Remove ${item.name}`}
                   style="position:absolute;top:8px;right:8px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.62);color:#fff;cursor:pointer"
@@ -199,6 +201,7 @@ function ChainPost({
           {media.length ? (
             <button
               onClick={onAddMedia}
+              class="hov-light"
               title="Add image"
               style="display:flex;align-items:center;gap:7px;height:32px;padding:0 12px 0 8px;border:0;border-radius:999px;background:transparent;color:inherit;font-family:inherit;font-size:14px;cursor:pointer"
             >
@@ -211,6 +214,7 @@ function ChainPost({
           ) : (
             <button
               onClick={onAddMedia}
+              class="hov-light"
               title="Add image"
               aria-label="Add image"
               style="display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer"
@@ -224,6 +228,7 @@ function ChainPost({
 
           <button
             onClick={onToggleEmoji}
+            class="hov-light"
             title="Emoji"
             aria-label="Emoji"
             style={`display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:${
@@ -242,6 +247,7 @@ function ChainPost({
                 {EMOJIS.map((character) => (
                   <button
                     key={character}
+                    class="hov-light"
                     onClick={() =>
                       setChainPost(
                         project,

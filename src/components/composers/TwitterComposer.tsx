@@ -82,6 +82,7 @@ export default function TwitterComposer({ project }: Props) {
         <div style="position:relative;display:flex;align-items:center;gap:2px;border-top:1px solid #2f3336;padding:8px 0 6px">
           <button
             onClick={() => fileInput.current?.click()}
+            class="hov-twitter"
             disabled={full}
             title={full ? 'Four images is the limit for one post' : 'Add images'}
             aria-label="Add images"
@@ -98,6 +99,7 @@ export default function TwitterComposer({ project }: Props) {
 
           <button
             onClick={() => setEmojiOpen((open) => !open)}
+            class="hov-twitter"
             title="Emoji"
             aria-label="Emoji"
             style={`display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:${
@@ -138,6 +140,7 @@ export default function TwitterComposer({ project }: Props) {
 
           <button
             onClick={() => setFocus(addChainPost(project, KEYS))}
+            class="hov-twitter-accent"
             title="Add another post"
             aria-label="Add another post"
             style="display:grid;place-items:center;width:30px;height:30px;margin-right:10px;padding:0;border:1px solid #1d9bf0;border-radius:50%;background:transparent;color:#1d9bf0;cursor:pointer"
@@ -153,6 +156,7 @@ export default function TwitterComposer({ project }: Props) {
                 {EMOJIS.map((character) => (
                   <button
                     key={character}
+                    class="hov-twitter-soft"
                     onClick={() => insertEmoji(character)}
                     style="height:32px;padding:0;border:0;border-radius:8px;background:transparent;font-size:19px;line-height:1;cursor:pointer"
                   >
@@ -200,6 +204,7 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
           {position > 0 ? (
             <button
               onClick={onRemove}
+              class="hov-twitter"
               title="Remove post"
               aria-label="Remove post"
               style="flex:none;display:grid;place-items:center;width:30px;height:30px;margin-top:6px;padding:0;border:0;border-radius:50%;background:transparent;color:#1d9bf0;cursor:pointer"
@@ -224,6 +229,7 @@ function ChainPost({ project, position, text, onFocus, onRemove }: PostProps) {
                   </span>
                   <button
                     onClick={() => removeMedia(project.id, bucketFor('twitter', position), item.id)}
+                    class="hov-twitter-scrim"
                     title="Remove image"
                     aria-label={`Remove ${item.name}`}
                     style="position:absolute;top:9px;right:9px;display:grid;place-items:center;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,0.72);color:#e7e9ea;cursor:pointer"

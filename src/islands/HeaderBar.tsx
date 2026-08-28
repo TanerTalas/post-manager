@@ -254,6 +254,7 @@ export default function HeaderBar({ route }: Props) {
                         event.stopPropagation();
                         openNaming(tab.id, tab.label);
                       }}
+                      class="hov-site"
                       title="Rename project"
                       aria-label="Rename project"
                       style="position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--color-accent);border-radius:50%;background:var(--color-bg);color:var(--color-accent);cursor:pointer;padding:0"
