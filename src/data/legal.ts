@@ -25,7 +25,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
     href: '/privacy',
     nav: 'Privacy Policy',
     title: 'Privacy Policy',
-    kicker: 'Last revised 12 August 2026',
+    kicker: 'Last revised 28 August 2026',
     body: [
       {
         head: 'What is collected',
@@ -45,7 +45,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
       },
       {
         head: 'Third parties',
-        text: 'The page loads its typefaces from a font provider. The site is served by Cloudflare, which also runs the spam check on the contact form, and contact messages are delivered by a mail service. No advertising, tracking or embedded social scripts are present.',
+        text: 'Three, and only three. Vercel serves the pages. Google Fonts serves the typefaces. Cloudflare Turnstile runs the spam check, and it runs on the contact page alone. Messages you send are handed to Resend, which delivers them to my inbox. No advertising, no analytics, no embedded social scripts.',
       },
     ],
   },
@@ -54,7 +54,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
     href: '/terms',
     nav: 'Terms of Use',
     title: 'Terms of Use',
-    kicker: 'Last revised 12 August 2026',
+    kicker: 'Last revised 28 August 2026',
     body: [
       {
         head: 'What this tool is',
@@ -79,7 +79,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
     href: '/cookies',
     nav: 'Cookies',
     title: 'Cookies',
-    kicker: 'Last revised 12 August 2026',
+    kicker: 'Last revised 28 August 2026',
     body: [
       {
         head: 'No cookies are set',
@@ -95,7 +95,7 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
       },
       {
         head: 'The spam check',
-        text: 'The contact page runs a Cloudflare spam check, which may set a short lived cookie of its own to remember that you already passed it. It is there to tell people from bots, it does not follow you around, and it only appears on that one page.',
+        text: 'The contact page runs Cloudflare Turnstile, which may set a short lived cookie of its own to remember that you already passed it. It is there to tell people from bots, it does not follow you across sites, and it appears on that one page only.',
       },
       {
         head: 'Removing it',
