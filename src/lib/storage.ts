@@ -1,4 +1,4 @@
-import type { AppState, Project } from './types';
+import type { AppState, FieldValue, Project } from './types';
 import { PLATFORM_IDS, type PlatformId } from '~/data/platforms';
 
 export const STORAGE_KEY = 'post-manager';
@@ -38,10 +38,14 @@ function readProject(id: string, raw: unknown): Project | null {
     }
   }
 
-  const content: Record<string, string | boolean> = {};
+  const content: Record<string, FieldValue> = {};
   if (isRecord(raw.content)) {
     for (const [key, value] of Object.entries(raw.content)) {
-      if (typeof value === 'string' || typeof value === 'boolean') content[key] = value;
+      if (typeof value === 'string' || typeof value === 'boolean') {
+        content[key] = value;
+      } else if (Array.isArray(value) && value.every((entry) => typeof entry === 'string')) {
+        content[key] = value as string[];
+      }
     }
   }
 

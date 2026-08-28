@@ -116,6 +116,12 @@ export function readFlag(project: Project | null, key: string): boolean {
   return project?.content[key] === true;
 }
 
+/** Reads a chain field: the follow-up posts after the first one. */
+export function readList(project: Project | null, key: string): string[] {
+  const value = project?.content[key];
+  return Array.isArray(value) ? value : [];
+}
+
 export function createProject(name: string): string {
   const id = `p${state.seq}`;
   setState((current) => ({

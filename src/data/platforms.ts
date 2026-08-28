@@ -16,7 +16,13 @@ export const PLATFORMS: Platform[] = [
 
 export const PLATFORM_IDS = PLATFORMS.map((p) => p.id);
 
-/** Content keys, shaped as `<platform>_<field>`. Persisted verbatim. */
+/**
+ * Content keys, shaped as `<platform>_<field>`. Persisted verbatim, so a key
+ * added here has to be handled by the editor, the preview and the store alike.
+ *
+ * The `_thread` keys hold the follow-up posts of a chain, text only: their
+ * attachments live in memory with the rest of the media.
+ */
 export const FIELDS = [
   'notes',
   'reddit_sub',
@@ -27,11 +33,16 @@ export const FIELDS = [
   'reddit_nsfw',
   'linkedin_body',
   'instagram_caption',
-  'instagram_location',
-  'instagram_alt',
+  'instagram_ai',
+  'instagram_threads_share',
+  'instagram_hide_counts',
+  'instagram_no_comments',
+  'instagram_auto_threads',
   'twitter_body',
+  'twitter_thread',
   'threads_body',
   'threads_topic',
+  'threads_thread',
 ] as const;
 
 export type FieldKey = (typeof FIELDS)[number];

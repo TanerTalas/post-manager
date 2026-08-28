@@ -1,7 +1,10 @@
 import type { PlatformId } from '~/data/platforms';
 
-/** Every value a field can hold. Media never lands here, it is not persisted. */
-export type FieldValue = string | boolean;
+/**
+ * Every value a field can hold. Media never lands here, it is not persisted;
+ * string arrays carry the follow-up posts of a chain.
+ */
+export type FieldValue = string | boolean | string[];
 
 export interface Project {
   id: string;
