@@ -21,6 +21,16 @@ export function hydrate(): void {
   if (hydrated) return;
   hydrated = true;
   state = loadState();
+
+  // Writes are debounced, so a reload or a closed tab could otherwise land
+  // between the last keystroke and the write that would have saved it.
+  if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flush();
+    });
+  }
+
   emit();
 }
 
