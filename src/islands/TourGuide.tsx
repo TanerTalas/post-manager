@@ -147,7 +147,7 @@ export default function TourGuide() {
             Back
           </button>
           <button class="btn btn-primary" onClick={advance} style="font-size:12px">
-            {step === TOUR.length ? 'Done' : step === 2 ? 'Press it' : 'Next'}
+            {step === TOUR.length ? 'Done' : current.anchor === 'plus' ? 'Press it' : 'Next'}
           </button>
         </div>
       </div>

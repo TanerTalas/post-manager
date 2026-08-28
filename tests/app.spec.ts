@@ -97,3 +97,33 @@ test('the contact form carries a honeypot that no person can reach', async ({ pa
   const box = await honeypot.boundingBox();
   expect(box?.x ?? 0).toBeLessThan(0);
 });
+
+test('creating the project from the dialog moves the tour along with it', async ({ page }) => {
+  await page.goto('/app?tour=1');
+  await expect(page.getByText('1 / 6')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Press it' }).click();
+  await expect(page.getByText('2 / 6')).toBeVisible();
+
+  // The dialog's own button, not the tour's. Both have to land in one place.
+  await page.getByRole('button', { name: 'Create project' }).click();
+
+  await expect(page.getByText('3 / 6')).toBeVisible();
+
+  // One project, under the name the tour filled in. The old behaviour left the
+  // tour pointing at a closed dialog and added a second, unnamed project.
+  await expect(page.getByText('Merge Migration Recap')).toBeVisible();
+  await expect(page.getByText('Untitled project')).toHaveCount(0);
+});
+
+test('cancelling the naming dialog ends the tour rather than stranding it', async ({ page }) => {
+  await page.goto('/app?tour=1');
+  await page.getByRole('button', { name: 'Press it' }).click();
+  await expect(page.getByText('2 / 6')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Cancel' }).click();
+
+  await expect(page.getByText('2 / 6')).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Skip the tour' })).toBeHidden();
+  await expect(page.getByText('Nothing open yet')).toBeVisible();
+});

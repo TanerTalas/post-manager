@@ -14,11 +14,6 @@ export const TOUR: TourStep[] = [
     body: 'Every campaign or idea gets its own tab. The plus button is how you make one.',
   },
   {
-    anchor: 'plus',
-    title: 'Watch me press it',
-    body: 'Nothing is permanent, so feel free to poke at everything afterwards.',
-  },
-  {
     anchor: 'naming',
     title: 'Give it a name',
     body: 'I have filled in an example. Do not worry, you can delete a project whenever you like.',
@@ -86,31 +81,49 @@ export function prevStep(): void {
   if (step > 1) set(step - 1);
 }
 
+export function currentStep(): TourStep | null {
+  return TOUR[step - 1] ?? null;
+}
+
+/**
+ * Reports that the thing a step was describing has just happened, whether the
+ * tour's own button caused it or the reader pressed the real control. Both
+ * paths land in the same place, and the tour never ends up pointing at a dialog
+ * that has already closed.
+ */
+export function stepCompleted(anchor: AnchorName): void {
+  if (step > 0 && currentStep()?.anchor === anchor) advance();
+}
+
+function advance(): void {
+  set(step >= TOUR.length ? 0 : step + 1);
+}
+
 /**
  * Advancing does not only move the pointer: on the steps that demonstrate
- * something, it performs the action it is describing.
+ * something, it performs the action it is describing and lets the action report
+ * back through stepCompleted. Those branches deliberately do not move the step
+ * themselves, or pressing the real control would skip one.
  */
 export function nextStep(onOpenTwitter: () => void): void {
-  if (step === 2) {
-    commands?.openNaming(TOUR_PROJECT_NAME);
-    set(3);
+  const current = currentStep();
+  if (!current) return;
+
+  if (current.anchor === 'plus' && commands) {
+    commands.openNaming(TOUR_PROJECT_NAME);
     return;
   }
-  if (step === 3) {
-    commands?.commitNaming();
-    set(4);
+
+  if (current.anchor === 'naming' && commands) {
+    commands.commitNaming();
     return;
   }
-  if (step === 4) {
+
+  if (current.anchor === 'pencil') {
     onOpenTwitter();
-    set(5);
-    return;
   }
-  if (step >= TOUR.length) {
-    set(0);
-    return;
-  }
-  set(step + 1);
+
+  advance();
 }
 
 export function useTourStep(): number {

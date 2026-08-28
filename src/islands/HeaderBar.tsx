@@ -2,7 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { Icon, paths } from '~/components/Icon';
 import { setAnchor } from '~/lib/anchors';
 import { goTo } from '~/lib/navigate';
-import { registerTourCommands } from '~/lib/tour';
+import {
+  currentStep as getTourStep,
+  endTour,
+  registerTourCommands,
+  stepCompleted,
+  TOUR_PROJECT_NAME,
+} from '~/lib/tour';
 import {
   createProject,
   renameProject,
@@ -33,7 +39,6 @@ export default function HeaderBar({ route }: Props) {
   const [edges, setEdges] = useState({ start: true, end: true });
   const strip = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ x: number; left: number } | null>(null);
-  const namingRef = useRef<Naming | null>(null);
 
   const measure = useCallback(() => {
     const el = strip.current;
@@ -61,35 +66,50 @@ export default function HeaderBar({ route }: Props) {
   const openNaming = (target: string | null, value: string) => {
     setNaming({ target, value });
     setInfo(false);
+    // Only a new project answers the step that points at the plus button.
+    if (!target) stepCompleted('plus');
   };
 
   const commitNaming = () => {
     if (!naming) return;
     const name = naming.value.trim() || 'Untitled project';
+
     if (naming.target) {
       renameProject(naming.target, name);
       setNaming(null);
-    } else {
-      createProject(name);
-      setNaming(null);
-      if (route !== 'app') goTo('/app');
+      return;
+    }
+
+    createProject(name);
+    setNaming(null);
+    stepCompleted('naming');
+    if (route !== 'app') goTo('/app');
+  };
+
+  const cancelNaming = () => {
+    setNaming(null);
+    // Every step after this one needs the project that was just abandoned, so
+    // there is nowhere for the tour to go.
+    if (getTourStep()?.anchor === 'naming') {
+      setState({ tourSeen: true });
+      endTour();
     }
   };
 
-  // The tour presses these controls for the reader, so it needs a way in.
+  // The tour presses these controls for the reader rather than reaching into
+  // the DOM, and it goes through the same handlers a person would.
+  const commitRef = useRef(commitNaming);
+  commitRef.current = commitNaming;
+  const openRef = useRef(openNaming);
+  openRef.current = openNaming;
+
   useEffect(() => {
     registerTourCommands({
-      openNaming: (preset) => openNaming(null, preset),
-      commitNaming: () => {
-        const name = namingRef.current?.value.trim() || 'Untitled project';
-        createProject(name);
-        setNaming(null);
-      },
+      openNaming: (preset) => openRef.current(null, preset),
+      commitNaming: () => commitRef.current(),
     });
     return () => registerTourCommands(null);
   }, []);
-
-  namingRef.current = naming;
 
   const pickTab = (id: string) => {
     if (id === 'home') {
@@ -259,7 +279,11 @@ export default function HeaderBar({ route }: Props) {
           <button
             class="btn btn-primary btn-icon"
             ref={(el) => setAnchor('plus', el)}
-            onClick={() => openNaming(null, '')}
+            onClick={() =>
+              // During the tour the real button and the tour's own button do
+              // the same thing, example name included.
+              openNaming(null, getTourStep()?.anchor === 'plus' ? TOUR_PROJECT_NAME : '')
+            }
             title="New project"
             aria-label="New project"
             style="flex:none;width:34px;height:34px;margin-top:2px"
@@ -296,13 +320,13 @@ export default function HeaderBar({ route }: Props) {
               }
               onKeyDown={(event) => {
                 if (event.key === 'Enter') commitNaming();
-                if (event.key === 'Escape') setNaming(null);
+                if (event.key === 'Escape') cancelNaming();
               }}
               placeholder="e.g. Q4 Roadmap Post"
               style="min-height:42px;font-size:15px"
             />
             <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
-              <button class="btn btn-secondary" onClick={() => setNaming(null)} style="font-size:13px">
+              <button class="btn btn-secondary" onClick={cancelNaming} style="font-size:13px">
                 Cancel
               </button>
               <button class="btn btn-primary" onClick={commitNaming} style="font-size:13px">
