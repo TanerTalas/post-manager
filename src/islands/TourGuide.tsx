@@ -1,15 +1,18 @@
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { getAnchor, onAnchorChange } from '~/lib/anchors';
 import { activeProject, getState, patchProject, setState } from '~/lib/store';
 import { TOUR, endTour, nextStep, prevStep, startTour, useTourStep } from '~/lib/tour';
 
-const TIP_HEIGHT = 236;
+/** Only used before the card has been laid out once and can be measured. */
+const TIP_FALLBACK_HEIGHT = 236;
 
 interface Placement {
   top: number;
   left: number;
   arrow: number;
   width: number;
+  /** Which side of the anchor the card ended up on, so the arrow can follow. */
+  side: 'above' | 'below';
   ring: { top: number; left: number; width: number; height: number };
 }
 
@@ -21,6 +24,7 @@ interface Placement {
 export default function TourGuide() {
   const step = useTourStep();
   const [place, setPlace] = useState<Placement | null>(null);
+  const card = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -54,15 +58,24 @@ export default function TourGuide() {
     const left = Math.max(16, Math.min(box.left + box.width / 2 - width / 2, window.innerWidth - width - 16));
     const arrow = Math.max(14, Math.min(box.left + box.width / 2 - left - 5, width - 24));
 
-    let top = box.bottom + 14;
-    if (top + TIP_HEIGHT > window.innerHeight) top = box.top - TIP_HEIGHT + 22;
-    top = Math.max(16, Math.min(top, window.innerHeight - TIP_HEIGHT - 16));
+    // The card's real height, not a guess. A guess put the card in the wrong
+    // place whenever the copy ran short or long, which is what made the last
+    // steps look like they were pointing at nothing.
+    const height = card.current?.offsetHeight || TIP_FALLBACK_HEIGHT;
+
+    const below = box.bottom + 14;
+    const side = below + height > window.innerHeight - 16 ? 'above' : 'below';
+    const top =
+      side === 'below'
+        ? below
+        : Math.max(16, Math.min(box.top - height - 14, window.innerHeight - height - 16));
 
     setPlace({
       top,
       left,
       arrow,
       width,
+      side,
       ring: {
         top: box.top - 5,
         left: box.left - 5,
@@ -118,15 +131,18 @@ export default function TourGuide() {
       ) : null}
 
       <div
+        ref={card}
         class="elev-lg"
         style={`position:fixed;z-index:92;width:${place?.width ?? 320}px;max-width:calc(100vw - 32px);background:var(--color-bg);border:1px solid var(--color-accent);border-radius:var(--radius-md);padding:18px;animation:tipIn .24s ease;top:${
           place?.top ?? 120
         }px;left:${place?.left ?? 16}px`}
       >
         <div
-          style={`position:absolute;top:-6px;left:${
-            place?.arrow ?? 20
-          }px;width:10px;height:10px;background:var(--color-bg);border-left:1px solid var(--color-accent);border-top:1px solid var(--color-accent);transform:rotate(45deg)`}
+          style={`position:absolute;${
+            place?.side === 'above'
+              ? 'bottom:-6px;border-right:1px solid var(--color-accent);border-bottom:1px solid var(--color-accent)'
+              : 'top:-6px;border-left:1px solid var(--color-accent);border-top:1px solid var(--color-accent)'
+          };left:${place?.arrow ?? 20}px;width:10px;height:10px;background:var(--color-bg);transform:rotate(45deg)`}
         />
         <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
           <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--color-accent);font-variant-numeric:tabular-nums">
