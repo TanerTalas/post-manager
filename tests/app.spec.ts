@@ -1,12 +1,24 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+
+/**
+ * Astro server renders the islands, so every control exists in the HTML before
+ * it does anything. Clicking one before hydration is a click into the void, and
+ * under parallel workers that is exactly what happened often enough to make the
+ * suite flicker. Astro drops the `ssr` attribute once an island is live.
+ */
+async function ready(page: Page) {
+  await expect(page.locator('astro-island[ssr]')).toHaveCount(0);
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
+  await ready(page);
   await page.evaluate(() => localStorage.clear());
 });
 
 test('a draft survives a reload', async ({ page }) => {
   await page.goto('/app');
+  await ready(page);
 
   await page.getByRole('button', { name: 'New project' }).click();
   await page.getByPlaceholder('e.g. Q4 Roadmap Post').fill('Launch week');
@@ -19,6 +31,7 @@ test('a draft survives a reload', async ({ page }) => {
   await page.getByLabel('Post text').fill('forty thousand accounts, no downtime');
 
   await page.reload();
+  await ready(page);
 
   await expect(page.getByText('Launch week')).toBeVisible();
   await expect(
@@ -29,6 +42,7 @@ test('a draft survives a reload', async ({ page }) => {
 
 test('turning a platform off keeps what was written', async ({ page }) => {
   await page.goto('/app');
+  await ready(page);
 
   await page.getByRole('button', { name: 'New project' }).click();
   await page.getByPlaceholder('e.g. Q4 Roadmap Post').fill('Keep it');
@@ -48,6 +62,7 @@ test('turning a platform off keeps what was written', async ({ page }) => {
 
 test('every legal page is reachable from the footer', async ({ page }) => {
   await page.goto('/');
+  await ready(page);
 
   for (const [link, heading] of [
     ['Privacy Policy', 'Privacy Policy'],
@@ -55,6 +70,7 @@ test('every legal page is reachable from the footer', async ({ page }) => {
     ['Cookies', 'Cookies'],
   ] as const) {
     await page.goto('/');
+  await ready(page);
     await page.getByRole('contentinfo').getByRole('link', { name: link }).click();
     await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
   }
@@ -75,6 +91,7 @@ test('the contact form refuses an empty submission before it leaves the browser'
   });
 
   await page.goto('/contact');
+  await ready(page);
   await page.getByRole('button', { name: 'Send it' }).click();
 
   await expect(page.getByText('Tell me what to call you.')).toBeVisible();
@@ -85,6 +102,7 @@ test('the contact form refuses an empty submission before it leaves the browser'
 
 test('the contact form carries a honeypot that no person can reach', async ({ page }) => {
   await page.goto('/contact');
+  await ready(page);
 
   const honeypot = page.locator('input[name="company"]');
   await expect(honeypot).toHaveCount(1);
@@ -100,6 +118,7 @@ test('the contact form carries a honeypot that no person can reach', async ({ pa
 
 test('creating the project from the dialog moves the tour along with it', async ({ page }) => {
   await page.goto('/app?tour=1');
+  await ready(page);
   await expect(page.getByText('1 / 6')).toBeVisible();
 
   await page.getByRole('button', { name: 'Press it' }).click();
@@ -118,6 +137,7 @@ test('creating the project from the dialog moves the tour along with it', async 
 
 test('cancelling the naming dialog ends the tour rather than stranding it', async ({ page }) => {
   await page.goto('/app?tour=1');
+  await ready(page);
   await page.getByRole('button', { name: 'Press it' }).click();
   await expect(page.getByText('2 / 6')).toBeVisible();
 
