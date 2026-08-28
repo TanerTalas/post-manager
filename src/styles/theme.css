@@ -94,6 +94,31 @@ a:hover {
   color: var(--color-accent-700);
 }
 
+/* Destructive confirmation. Its own variant rather than a primary button with
+   the colours overridden inline: that put accent-700 text on an accent-700
+   hover background and the label disappeared. */
+.btn-danger {
+  background: var(--color-accent-700);
+  border-color: var(--color-accent-700);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #5f3f0c;
+  border-color: #5f3f0c;
+}
+
+/* The quieter destructive action, the one that opens the confirmation. */
+.btn-outline-danger {
+  background: var(--color-surface);
+  border-color: var(--color-accent-700);
+  color: var(--color-accent-700);
+}
+
+.btn-outline-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent-700) 8%, var(--color-surface));
+}
+
 .btn-ghost {
   background: transparent;
   border-color: transparent;
@@ -199,4 +224,89 @@ a:hover {
   .ig-split {
     grid-template-columns: 1fr;
   }
+}
+
+/* Hover affordances for the platform composers.
+   The reference design carried these in a `style-hover` attribute, which is not
+   a real one, so they live here as classes. Each name says which surface it is
+   meant for: a light wash reads as nothing on a black card.
+
+   These need !important. Every one of the buttons sets its resting background
+   in a style attribute, and an inline declaration outranks any class no matter
+   how specific, so without it the hover would silently do nothing. */
+.hov-dark:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.hov-dark-strong:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Toolbar glyphs sit dimmed until pointed at, then come up to full ink. */
+.hov-dark-ink:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #e5ebee !important;
+}
+
+.hov-light:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+.hov-light-ink:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.hov-twitter:hover:not(:disabled) {
+  background: #181818 !important;
+}
+
+.hov-twitter-accent:hover:not(:disabled) {
+  background: rgba(29, 155, 240, 0.12) !important;
+}
+
+.hov-remove:hover:not(:disabled) {
+  background: rgba(255, 88, 91, 0.12) !important;
+}
+
+.hov-scrim:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.hov-twitter-soft:hover:not(:disabled) {
+  background: #16181c !important;
+}
+
+.hov-twitter-scrim:hover:not(:disabled) {
+  background: rgba(39, 44, 48, 0.9) !important;
+}
+
+.hov-instagram:hover:not(:disabled) {
+  background: #3f4ee0 !important;
+}
+
+.hov-dashed:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.45) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Filled buttons inside the platform dialogs, which lift rather than wash. */
+.hov-lift-dark:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+.hov-lift-light:hover:not(:disabled) {
+  background: #fff !important;
+}
+
+/* Controls that sit on the site's own surface rather than inside a composer.
+   The reference design left these without a hover state; they are all
+   clickable, so they get a quiet one. */
+.hov-site:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent) !important;
+}
+
+.hov-chip:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent) !important;
+  border-color: var(--color-accent) !important;
 }

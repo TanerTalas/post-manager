@@ -124,6 +124,7 @@ export default function AppScreen() {
             return (
               <button
                 key={platform.id}
+                class="hov-chip"
                 onClick={() => askToggle(platform.id)}
                 aria-pressed={on}
                 style={`flex:none;display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;font:inherit;font-size:13px;cursor:pointer;border:1px solid ${
@@ -217,10 +218,10 @@ export default function AppScreen() {
           video are never saved. Clear your browsing data and the projects go with it.
         </p>
         <button
-          class="btn btn-secondary"
+          class="btn btn-outline-danger"
           ref={(el) => setAnchor('delete', el)}
           onClick={() => setPendingDelete(true)}
-          style="font-size:13px;white-space:nowrap;color:var(--color-accent-700);border-color:var(--color-accent-700)"
+          style="font-size:13px;white-space:nowrap"
         >
           <Icon size={15} width={1.5}>
             {paths.trash}
@@ -289,12 +290,12 @@ export default function AppScreen() {
                 Keep it
               </button>
               <button
-                class="btn btn-primary"
+                class="btn btn-danger"
                 onClick={() => {
                   deleteProject(project.id);
                   setPendingDelete(false);
                 }}
-                style="font-size:13px;white-space:nowrap;color:var(--color-accent-700);border-color:var(--color-accent-700)"
+                style="font-size:13px;white-space:nowrap"
               >
                 Delete project
               </button>
