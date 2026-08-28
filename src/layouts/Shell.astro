@@ -1,0 +1,67 @@
+---
+import Base from './Base.astro';
+import SiteFooter from '~/components/SiteFooter.astro';
+import HeaderBar from '~/islands/HeaderBar';
+
+interface Props {
+  title: string;
+  description?: string;
+  route: 'home' | 'app';
+}
+
+const { title, description, route } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <div style="min-height:100vh;display:flex;flex-direction:column">
+    <HeaderBar client:load route={route} />
+
+    <main style="flex:1;width:100%;margin:0 auto;padding:34px 20px 64px;max-width:1180px">
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </div>
+
+  <script>
+    // The chrome slides away on the way down and returns on the way up. Kept out
+    // of the islands: it is presentation only and never touches stored state.
+    const header = document.querySelector<HTMLElement>('[data-shell-header]');
+    const chrome = document.querySelector<HTMLElement>('[data-shell-chrome]');
+
+    if (header && chrome) {
+      let last: number | null = null;
+      let hidden = false;
+      let flipped = 0;
+      let frame = 0;
+
+      const onScroll = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const y = Math.max(0, window.scrollY);
+          if (last === null) {
+            last = y;
+            return;
+          }
+          const delta = y - last;
+          if (Math.abs(delta) < 14) return;
+          last = y;
+
+          const next = delta > 0 && y > 130;
+          if (next === hidden) return;
+          if (Date.now() - flipped < 420) return;
+
+          flipped = Date.now();
+          hidden = next;
+          // The tour pins the chrome open, so it can point at the tab bar.
+          if (document.body.dataset.tour === 'on') return;
+          header.style.top = hidden ? '-56px' : '0px';
+          chrome.style.opacity = hidden ? '0' : '1';
+        });
+      };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+  </script>
+</Base>

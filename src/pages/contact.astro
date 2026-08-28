@@ -1,0 +1,22 @@
+---
+import Legal from '~/layouts/Legal.astro';
+import ContactForm from '~/islands/ContactForm';
+---
+
+<Legal
+  title="Say hello"
+  kicker="I read everything"
+  slug="contact"
+  description="Write to me about Post Manager. A layout that looks wrong, a workflow that feels clumsy, or just a hello."
+>
+  <p style="font-size:16px;line-height:1.9;margin:0 0 18px;text-wrap:pretty">
+    I built this on evenings and weekends, so hearing that someone is actually using it makes my week.
+    Write to me about anything: a platform layout that doesn&apos;t match what you see, a workflow that
+    feels clumsy, a feature you keep wishing were here. Or just say hello; that counts too.
+  </p>
+  <p style="font-size:16px;line-height:1.9;margin:0 0 30px;text-wrap:pretty">
+    I read everything. I reply to most of it within a few days.
+  </p>
+
+  <ContactForm client:load />
+</Legal>

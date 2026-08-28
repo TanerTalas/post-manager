@@ -1,0 +1,22 @@
+---
+import Legal from '~/layouts/Legal.astro';
+import { LEGAL, DRAFT_NOTE } from '~/data/legal';
+
+const page = LEGAL.cookies;
+---
+
+<Legal title={page.title} kicker={page.kicker} slug={page.slug}>
+  {
+    page.body.map((section) => (
+      <div style="margin-bottom:30px">
+        <h2 style="font-family:var(--font-heading);font-weight:600;font-size:20px;margin:0 0 8px">
+          {section.head}
+        </h2>
+        <p style="font-size:15px;line-height:1.85;margin:0;text-wrap:pretty">{section.text}</p>
+      </div>
+    ))
+  }
+  <p style="font-size:12px;line-height:1.7;margin:36px 0 0;color:color-mix(in srgb, var(--color-text) 50%, transparent);text-wrap:pretty">
+    {DRAFT_NOTE}
+  </p>
+</Legal>

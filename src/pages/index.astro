@@ -1,0 +1,36 @@
+---
+import Shell from '~/layouts/Shell.astro';
+---
+
+<Shell title="Post Manager" route="home">
+  <div style="padding:64px 0 84px;text-align:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin:0 0 26px">
+      <span style="display:flex;align-items:flex-end;justify-content:center;flex:none;width:88px;height:72px;border:1.5px solid var(--color-accent);border-bottom:0;border-radius:7px 7px 0 0;background:color-mix(in srgb, var(--color-accent) 8%, transparent);padding-bottom:9px">
+        <span style="font-weight:600;font-size:36px;letter-spacing:-0.03em;line-height:1;color:var(--color-accent-700)">
+          pm
+        </span>
+      </span>
+      <span style="width:88px;height:1.5px;background:var(--color-text)"></span>
+    </div>
+
+    <h1 style="font-weight:600;font-size:clamp(26px,4vw,40px);line-height:1.15;letter-spacing:0.2em;text-transform:uppercase;margin:0">
+      Post Manager
+    </h1>
+    <p style="font-size:17px;line-height:1.65;margin:16px auto 0;max-width:38ch;text-wrap:pretty;color:color-mix(in srgb, var(--color-text) 70%, transparent)">
+      Draft your posts the easy way
+    </p>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:32px">
+      <a class="btn btn-primary" href="/app?tour=1" style="padding:11px 22px;font-size:15px;white-space:nowrap">
+        Shall we take a tour?
+      </a>
+      <a class="btn btn-secondary" href="/app" style="padding:11px 22px;font-size:15px;white-space:nowrap">
+        I&apos;ve used this before
+      </a>
+    </div>
+
+    <p style="font-size:13px;line-height:1.6;margin:38px 0 0;color:color-mix(in srgb, var(--color-text) 50%, transparent)">
+      Everything stays in this browser. Nothing is uploaded.
+    </p>
+  </div>
+</Shell>
