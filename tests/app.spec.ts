@@ -147,3 +147,49 @@ test('cancelling the naming dialog ends the tour rather than stranding it', asyn
   await expect(page.getByRole('button', { name: 'Skip the tour' })).toBeHidden();
   await expect(page.getByText('Nothing open yet')).toBeVisible();
 });
+
+test('the Turkish pages are actually Turkish', async ({ page }) => {
+  await page.goto('/tr');
+  await ready(page);
+
+  await expect(page.getByText('Gönderilerini kolay yoldan hazırla')).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'tr');
+
+  await page.goto('/tr/privacy');
+  await expect(page.getByRole('heading', { level: 1, name: 'Gizlilik Politikası' })).toBeVisible();
+});
+
+test('the language switch swaps the page without leaving it', async ({ page }) => {
+  await page.goto('/app');
+  await ready(page);
+
+  await expect(page.getByText('Nothing open yet')).toBeVisible();
+
+  await page.getByRole('link', { name: 'TR' }).click();
+  await expect(page).toHaveURL(/\/tr\/app\/?$/);
+  await expect(page.getByText('Henüz açık bir şey yok')).toBeVisible();
+
+  await page.getByRole('link', { name: 'EN' }).click();
+  await expect(page).toHaveURL(/\/app\/?$/);
+  await expect(page.getByText('Nothing open yet')).toBeVisible();
+});
+
+test('the Turkish contact form reports its errors in Turkish', async ({ page }) => {
+  await page.goto('/tr/contact');
+  await ready(page);
+
+  await page.getByRole('button', { name: 'Gönder' }).click();
+
+  await expect(page.getByText('Sana nasıl sesleneceğimi söyle.')).toBeVisible();
+  await expect(page.getByText('Geri yazabileceğim bir yer lazım.')).toBeVisible();
+});
+
+test('each page names its counterpart for search engines', async ({ page }) => {
+  await page.goto('/terms');
+
+  await expect(page.locator('link[rel="alternate"][hreflang="tr"]')).toHaveAttribute(
+    'href',
+    /\/tr\/terms$/,
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/terms$/);
+});
