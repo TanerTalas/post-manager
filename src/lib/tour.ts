@@ -1,54 +1,29 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { AnchorName } from './anchors';
+import type { StringKey } from '~/i18n/en';
 
+/** A step points at a control and carries the keys for its two lines. */
 export interface TourStep {
   anchor: AnchorName;
-  title: string;
-  body: string;
+  title: StringKey;
+  body: StringKey;
 }
 
 export const TOUR: TourStep[] = [
-  {
-    anchor: 'plus',
-    title: 'Projects start here',
-    body: 'Every campaign or idea gets its own tab. The plus button is how you make one.',
-  },
-  {
-    anchor: 'naming',
-    title: 'Give it a name',
-    body: 'I have filled in an example. Do not worry, you can delete a project whenever you like.',
-  },
-  {
-    anchor: 'pencil',
-    title: 'Renaming later',
-    body: 'The pencil under the selected tab reopens this box, so a rushed name is never a problem.',
-  },
-  {
-    anchor: 'twitter',
-    title: 'The composers',
-    body: 'I rebuilt each platform layout almost exactly, so you never have to wonder which box is which. Twitter is the simplest one, so it goes first.',
-  },
-  {
-    anchor: 'delete',
-    title: 'Getting rid of a project',
-    body: 'This removes the tab and everything drafted inside it. You get one confirmation first.',
-  },
-  {
-    anchor: 'help',
-    title: 'When you need me',
-    body: 'Questions about storage, or a second run through this tour: both are behind the question mark.',
-  },
+  { anchor: 'plus', title: 'tour.step1.title', body: 'tour.step1.body' },
+  { anchor: 'naming', title: 'tour.step2.title', body: 'tour.step2.body' },
+  { anchor: 'pencil', title: 'tour.step3.title', body: 'tour.step3.body' },
+  { anchor: 'twitter', title: 'tour.step4.title', body: 'tour.step4.body' },
+  { anchor: 'delete', title: 'tour.step5.title', body: 'tour.step5.body' },
+  { anchor: 'help', title: 'tour.step6.title', body: 'tour.step6.body' },
 ];
-
-/** The example name the tour types into the naming box for you. */
-export const TOUR_PROJECT_NAME = 'Merge Migration Recap';
 
 /**
  * The tour drives real controls that live in other islands, so those islands
  * hand their actions over here rather than the tour reaching into their DOM.
  */
 export interface TourCommands {
-  openNaming: (preset: string) => void;
+  openNaming: () => void;
   commitNaming: () => void;
 }
 
@@ -110,7 +85,7 @@ export function nextStep(onOpenTwitter: () => void): void {
   if (!current) return;
 
   if (current.anchor === 'plus' && commands) {
-    commands.openNaming(TOUR_PROJECT_NAME);
+    commands.openNaming();
     return;
   }
 

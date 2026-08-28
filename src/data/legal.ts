@@ -1,4 +1,7 @@
+import type { Lang } from '~/i18n/routing';
+
 export type LegalSlug = 'privacy' | 'terms' | 'cookies' | 'contact';
+export type LegalDoc = Exclude<LegalSlug, 'contact'>;
 
 export interface LegalSection {
   head: string;
@@ -6,24 +9,20 @@ export interface LegalSection {
 }
 
 export interface LegalPage {
-  slug: LegalSlug;
-  href: string;
-  /** Label used in the side and mobile navigation. */
-  nav: string;
+  slug: LegalDoc;
   title: string;
   kicker: string;
   body: LegalSection[];
 }
 
 /**
- * Draft wording carried over from the reference design. These pages are
- * revisited last, once the app behaviour has settled.
+ * Draft wording carried over from the reference design, in both languages.
+ * These pages are revisited last, once the app behaviour has settled; when the
+ * final wording lands, both languages are rewritten together.
  */
-export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
+const EN: Record<LegalDoc, LegalPage> = {
   privacy: {
     slug: 'privacy',
-    href: '/privacy',
-    nav: 'Privacy Policy',
     title: 'Privacy Policy',
     kicker: 'Last revised 28 August 2026',
     body: [
@@ -51,8 +50,6 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
   },
   terms: {
     slug: 'terms',
-    href: '/terms',
-    nav: 'Terms of Use',
     title: 'Terms of Use',
     kicker: 'Last revised 28 August 2026',
     body: [
@@ -76,8 +73,6 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
   },
   cookies: {
     slug: 'cookies',
-    href: '/cookies',
-    nav: 'Cookies',
     title: 'Cookies',
     kicker: 'Last revised 28 August 2026',
     body: [
@@ -105,12 +100,90 @@ export const LEGAL: Record<Exclude<LegalSlug, 'contact'>, LegalPage> = {
   },
 };
 
-export const LEGAL_NAV: { href: string; label: string; slug: LegalSlug }[] = [
-  { href: '/privacy', label: 'Privacy Policy', slug: 'privacy' },
-  { href: '/terms', label: 'Terms of Use', slug: 'terms' },
-  { href: '/cookies', label: 'Cookies', slug: 'cookies' },
-  { href: '/contact', label: 'Contact Me', slug: 'contact' },
-];
+const TR: Record<LegalDoc, LegalPage> = {
+  privacy: {
+    slug: 'privacy',
+    title: 'Gizlilik Politikası',
+    kicker: 'Son güncelleme 28 Ağustos 2026',
+    body: [
+      {
+        head: 'Neler toplanıyor',
+        text: 'Hiçbir şey tarayıcından çıkmıyor. Post Manager’ın hesap sistemi yok, analitiği yok, taslaklarını alan bir sunucusu da yok. Yazdığın metin tarayıcının yerel deposuna yazılır ve sayfayı bir dahaki açışında oradan geri okunur.',
+      },
+      {
+        head: 'Neler saklanmıyor',
+        text: 'Görsel ve video hiçbir zaman kaydedilmez. Sayfa açıkken bellekte tutulur, sayfayı kapattığında ya da yenilediğinde gider. Bir taslak belirli bir görsele bağlıysa dosyayı sen sakla.',
+      },
+      {
+        head: 'Verilerini temizlemek',
+        text: 'Her şey tarayıcında durduğu için, tarayıcı verilerini temizlemek bütün projeleri siler. Başka hiçbir yerde kopyası yok ve bizim geri getirmemizin bir yolu da yok. İhtiyacın olan tek denetim tarayıcı ayarların.',
+      },
+      {
+        head: 'Bana yazdığında',
+        text: 'İletişim sayfası, bir şeyin gerçekten tarayıcından çıktığı tek yer, o da sen gönder dediğin için. Adın, adresin ve mesajın, bunları gelen kutuma ileten bir posta servisine geçer. Adresin yalnızca yanıt vermek için kullanılır, başka hiçbir şey için değil. Taslakların bunun parçası değildir.',
+      },
+      {
+        head: 'Üçüncü taraflar',
+        text: 'Üç tane, o kadar. Sayfaları Vercel sunuyor. Yazı tiplerini Google Fonts sunuyor. Spam kontrolünü Cloudflare Turnstile yapıyor ve yalnızca iletişim sayfasında çalışıyor. Gönderdiğin mesajlar, gelen kutuma ileten Resend’e verilir. Reklam yok, analitik yok, gömülü sosyal medya betiği yok.',
+      },
+    ],
+  },
+  terms: {
+    slug: 'terms',
+    title: 'Kullanım Şartları',
+    kicker: 'Son güncelleme 28 Ağustos 2026',
+    body: [
+      {
+        head: 'Bu araç nedir',
+        text: 'Post Manager bir taslak hazırlama yardımcısıdır. Her platformun düzenleyicisinin yakın bir benzerini gösterir, böylece doğru biçimi aklında tutarak yazarsın. Hiçbir şey yayınlamaz ve taklit ettiği platformların hiçbiriyle bağlantısı yoktur.',
+      },
+      {
+        head: 'Yazdıkların senindir',
+        text: 'Burada yazdıkların üzerindeki bütün haklar sende kalır. Aracı kullanmakla kimseye bir lisans verilmiş olmaz, çünkü taslakların hiçbir yere iletilmez. İletişim sayfasından bilerek gönderdiğin bir mesaj tek istisnadır ve o da yalnızca bana gelir.',
+      },
+      {
+        head: 'Erişilebilirlik',
+        text: 'Araç olduğu gibi sunulur; çalışmaya devam edeceğine, çevrimiçi kalacağına ya da taslaklarını koruyacağına dair bir söz verilmez. Bunu bir arşiv değil, bir karalama defteri olarak gör.',
+      },
+      {
+        head: 'Adil kullanım',
+        text: 'Aracı, bulunduğun yerde hukuka aykırı olan ya da bir platformun kendi kurallarını çiğneyerek yayınlamayı düşündüğün içerikleri hazırlamak için kullanma.',
+      },
+    ],
+  },
+  cookies: {
+    slug: 'cookies',
+    title: 'Çerezler',
+    kicker: 'Son güncelleme 28 Ağustos 2026',
+    body: [
+      {
+        head: 'Çerez konmuyor',
+        text: 'Post Manager kendine ait hiçbir çerez koymaz. Yerel depolama kullanır, o da farklı çalışır: ağ istekleriyle birlikte gönderilmez ve cihazından hiç çıkmaz.',
+      },
+      {
+        head: 'Orada ne duruyor',
+        text: 'Projelerin, adları, etkinleştirdiğin platformlar, açık bıraktığın editörler ve turu daha önce görüp görmediğin. Seni tanımlayan hiçbir şey yok.',
+      },
+      {
+        head: 'Neden duruyor',
+        text: 'Sayfayı yeniden açtığında tam bıraktığın yerde olasın diye: aynı sekmeler, önünde aynı proje, her kutuda aynı metin. Bu olmasa her yenileme boş bir sayfadan başlardı.',
+      },
+      {
+        head: 'Spam kontrolü',
+        text: 'İletişim sayfası Cloudflare Turnstile çalıştırır; bu da kontrolü geçtiğini hatırlamak için kısa ömürlü kendi çerezini koyabilir. Amacı insanı bottan ayırmaktır, siteler arasında seni izlemez ve yalnızca o tek sayfada görünür.',
+      },
+      {
+        head: 'Kaldırmak',
+        text: 'Tarayıcı ayarlarından bu sayfanın site verilerini temizlemek hepsini bir anda siler. Araç içinden bir projeyi silmek yalnızca o projeyi kaldırır.',
+      },
+    ],
+  },
+};
 
-export const DRAFT_NOTE =
-  'Draft text. This page will be replaced with the final wording before launch.';
+const BY_LANG: Record<Lang, Record<LegalDoc, LegalPage>> = { en: EN, tr: TR };
+
+export function legalPage(lang: Lang, slug: LegalDoc): LegalPage {
+  return BY_LANG[lang][slug];
+}
+
+export const LEGAL_SLUGS: LegalSlug[] = ['privacy', 'terms', 'cookies', 'contact'];

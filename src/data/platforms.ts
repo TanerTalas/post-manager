@@ -47,8 +47,15 @@ export const FIELDS = [
 
 export type FieldKey = (typeof FIELDS)[number];
 
+/**
+ * Flair names as a subreddit would actually list them, so they stay in English
+ * in both languages. The one exception is the "no flair" choice, which is the
+ * interface speaking rather than the community, and it is translated.
+ */
+export const NO_FLAIR = '';
+
 export const RD_FLAIRS = [
-  'No flair',
+  NO_FLAIR,
   'Resource',
   'Discussion',
   'News',
