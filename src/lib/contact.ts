@@ -30,9 +30,16 @@ export interface ContactPayload {
 
 export type ContactField = 'name' | 'email' | 'message' | 'token';
 
+/**
+ * Errors travel as keys, not prose. The endpoint runs on a server that knows
+ * nothing about which language the page was in; the browser that receives the
+ * key is the one that can name the language.
+ */
 export interface ValidationError {
   field: ContactField;
-  message: string;
+  key: string;
+  /** Filled in for the messages that quote a limit. */
+  values?: Record<string, number>;
 }
 
 // Deliberately loose. The address only has to be plausible enough to reply to,
@@ -47,25 +54,26 @@ export function validateContact(input: Partial<ContactPayload>): ValidationError
   const message = (input.message ?? '').trim();
 
   if (!name) {
-    errors.push({ field: 'name', message: 'Tell me what to call you.' });
+    errors.push({ field: 'name', key: 'error.nameRequired' });
   } else if (name.length > CONTACT_LIMITS.name) {
-    errors.push({ field: 'name', message: `Names cap out at ${CONTACT_LIMITS.name} characters.` });
+    errors.push({ field: 'name', key: 'error.nameLong', values: { n: CONTACT_LIMITS.name } });
   }
 
   if (!email) {
-    errors.push({ field: 'email', message: 'I need somewhere to write back.' });
+    errors.push({ field: 'email', key: 'error.emailRequired' });
   } else if (email.length > CONTACT_LIMITS.email || !EMAIL.test(email)) {
-    errors.push({ field: 'email', message: 'That address does not look right.' });
+    errors.push({ field: 'email', key: 'error.emailInvalid' });
   }
 
   if (!message) {
-    errors.push({ field: 'message', message: 'The message is empty.' });
+    errors.push({ field: 'message', key: 'error.messageRequired' });
   } else if (message.length < CONTACT_LIMITS.messageMin) {
-    errors.push({ field: 'message', message: 'A few more words would help.' });
+    errors.push({ field: 'message', key: 'error.messageShort' });
   } else if (message.length > CONTACT_LIMITS.message) {
     errors.push({
       field: 'message',
-      message: `That is over ${CONTACT_LIMITS.message.toLocaleString('en-US')} characters.`,
+      key: 'error.messageLong',
+      values: { n: CONTACT_LIMITS.message },
     });
   }
 

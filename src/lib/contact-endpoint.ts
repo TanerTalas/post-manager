@@ -1,5 +1,7 @@
 /**
  * The contact endpoint's whole decision, with no host specific types in it.
+ * Every message it returns is a translation key: the server has no idea which
+ * language the page was in, and the browser that gets the key does.
  * `api/contact.ts` is only the wrapper that hands Vercel's request over.
  * Keeping the logic here means the tests exercise the real thing, and it means
  * the /api directory holds exactly one small file: Vercel turns every file it
@@ -107,11 +109,11 @@ export async function handleContact(
   deps = { verifyTurnstile, sendEmail },
 ): Promise<Reply> {
   if (!config.turnstileSecret || !config.resendKey || !config.to) {
-    return { status: 503, body: { error: 'The contact endpoint is not configured yet.' } };
+    return { status: 503, body: { error: 'error.notConfigured' } };
   }
 
   if (typeof raw !== 'object' || raw === null) {
-    return { status: 400, body: { error: 'That request could not be read.' } };
+    return { status: 400, body: { error: 'error.unreadable' } };
   }
 
   const payload = raw as Partial<ContactPayload>;
@@ -128,17 +130,11 @@ export async function handleContact(
 
   const token = typeof payload.token === 'string' ? payload.token : '';
   if (!token) {
-    return {
-      status: 422,
-      body: { errors: [{ field: 'token', message: 'Finish the spam check first.' }] },
-    };
+    return { status: 422, body: { errors: [{ field: 'token', key: 'error.tokenRequired' }] } };
   }
 
   if (!(await deps.verifyTurnstile(config.turnstileSecret, token, ip))) {
-    return {
-      status: 403,
-      body: { errors: [{ field: 'token', message: 'That spam check did not pass. Try once more.' }] },
-    };
+    return { status: 403, body: { errors: [{ field: 'token', key: 'error.tokenFailed' }] } };
   }
 
   const sent = await deps.sendEmail(
@@ -149,10 +145,7 @@ export async function handleContact(
   );
 
   if (!sent) {
-    return {
-      status: 502,
-      body: { error: 'The message could not be delivered. Try again in a moment.' },
-    };
+    return { status: 502, body: { error: 'error.undelivered' } };
   }
 
   return { status: 200, body: { ok: true } };

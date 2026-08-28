@@ -18,7 +18,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
 
   const length = Number(request.headers['content-length'] ?? '0');
   if (length > CONTACT_LIMITS.body) {
-    response.status(413).json({ error: 'That message is too long to send.' });
+    response.status(413).json({ error: 'error.tooLong' });
     return;
   }
 
