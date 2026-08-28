@@ -7,10 +7,8 @@ interface Props {
 const { width = 1180 } = Astro.props;
 ---
 
-<div style="border-top:1px solid var(--color-divider);background:var(--color-surface)">
-  <div
-    style={`max-width:${width}px;margin:0 auto;padding:12px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between`}
-  >
+<div class="contact-strip">
+  <div class="contact-strip-inner" style={`max-width:${width}px`}>
     <p style="margin:0;font-family:var(--font-serif);font-size:15px;font-weight:500;letter-spacing:0.005em">
       A question, an idea, or just a hello. All of it is welcome.
     </p>
@@ -24,12 +22,10 @@ const { width = 1180 } = Astro.props;
   </div>
 </div>
 
-<footer style="border-top:1px solid var(--color-divider)">
-  <div
-    style={`max-width:${width}px;margin:0 auto;padding:20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;font-size:12px;color:color-mix(in srgb, var(--color-text) 55%, transparent)`}
-  >
+<footer class="site-footer">
+  <div class="site-footer-inner" style={`max-width:${width}px`}>
     <span style="font-variant-numeric:tabular-nums">&copy; 2026 Post Manager</span>
-    <div style="display:flex;flex-wrap:wrap;gap:20px">
+    <div class="site-footer-links">
       <a href="/privacy">Privacy Policy</a>
       <a href="/terms">Terms of Use</a>
       <a href="/cookies">Cookies</a>
@@ -37,3 +33,61 @@ const { width = 1180 } = Astro.props;
     </div>
   </div>
 </footer>
+
+<style>
+  .contact-strip {
+    border-top: 1px solid var(--color-divider);
+    background: var(--color-surface);
+  }
+
+  .contact-strip-inner,
+  .site-footer-inner {
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .contact-strip-inner {
+    padding: 12px 20px;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--color-divider);
+  }
+
+  .site-footer-inner {
+    padding: 20px;
+    font-size: 12px;
+    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  }
+
+  .site-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  /* Once the rows wrap there is no left and right any more, only a stack, and
+     a stack reads better centred than ragged against the left edge. */
+  @media (max-width: 640px) {
+    .contact-strip-inner,
+    .site-footer-inner,
+    .site-footer-links {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .contact-strip-inner {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .site-footer-inner {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+</style>
