@@ -1,6 +1,10 @@
 ---
 import Legal from '~/layouts/Legal.astro';
 import ContactForm from '~/islands/ContactForm';
+
+// Public key, safe to ship. Set PUBLIC_TURNSTILE_SITE_KEY in the build
+// environment; without it the form renders but says it is not configured.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
 
 <Legal
@@ -18,5 +22,5 @@ import ContactForm from '~/islands/ContactForm';
     I read everything. I reply to most of it within a few days.
   </p>
 
-  <ContactForm client:load />
+  <ContactForm client:load siteKey={siteKey} />
 </Legal>
